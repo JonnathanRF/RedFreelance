@@ -1,0 +1,18 @@
+# RedFreelance/docker-compose.yml
+
+version: '3.8' # Especifica la versión de Docker Compose
+
+services:
+  auth-service: # Define un servicio llamado 'auth-service'
+    build: ./auth-service # Indica a Docker Compose que construya la imagen desde el Dockerfile en la carpeta auth-service/
+    ports:
+      - "8000:8000" # Mapea el puerto 8000 del host al puerto 8000 del contenedor
+    volumes:
+      - ./auth-service:/app # Monta el directorio local auth-service/ en /app dentro del contenedor
+      # Esto es útil para el desarrollo: los cambios en tu código local se reflejarán instantáneamente en el contenedor sin reconstruir la imagen.
+    environment:
+      # Aquí podemos añadir variables de entorno si fueran necesarias para el auth-service
+      # Por ejemplo, para configurar un secreto JWT o la conexión a una base de datos real más adelante.
+      PYTHONUNBUFFERED: 1 # Asegura que la salida de Python no se almacene en búfer, útil para ver logs en tiempo real
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload # Inicia la aplicación con auto-recarga
+    # El flag --reload es esencial para desarrollo, ya que recarga el servidor automáticamente al detectar cambios en el código
