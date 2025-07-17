@@ -1,5 +1,6 @@
 # RedFreelance/auth-service/main.py
 
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -18,6 +19,22 @@ app = FastAPI(
     title="Auth Service",
     description="Microservicio encargado de la autenticación y autorización de usuarios (clientes y freelancers).",
     version="0.1.0",
+)
+
+# --- Configuración de CORS (Cross-Origin Resource Sharing) ---
+origins = [
+    "http://localhost",
+    "http://localhost:3000", # Por lo general, tu frontend se ejecutará en este puerto
+    "http://localhost:8080", # Otro puerto común para frontends
+    # Puedes añadir más orígenes aquí cuando tu frontend se despliegue, ej. "https://tudominiofrontend.com"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Permite todos los métodos (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"], # Permite todos los encabezados, incluyendo Authorization
 )
 
 # Endpoint raíz (ya lo teníamos, lo mantenemos para verificar que el servicio está funcionando)
@@ -40,10 +57,6 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
-
-    # Validar el rol
-    if user.role not in ["client", "freelancer"]:
-        raise HTTPException(status_code=400, detail="Rol inválido. Debe ser 'client' o 'freelancer'.")
 
     # Hashear la contraseña
     hashed_password = security.get_password_hash(user.password)

@@ -1,7 +1,7 @@
 # RedFreelance/auth-service/security.py
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Optional, Union # <--- AÑADIDA 'Union' aquí
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -10,10 +10,10 @@ from sqlalchemy.orm import Session
 import models
 
 # --- NUEVAS IMPORTACIONES AÑADIDAS ---
-from fastapi import Depends, HTTPException, status # Importaciones necesarias para dependencias y manejo de errores
-from fastapi.security import OAuth2PasswordBearer # Para el esquema de seguridad OAuth2
-import schemas # Para usar los modelos Pydantic de esquemas (ej. TokenData)
-from database import get_db # Para obtener la sesión de la base de datos dentro de get_current_user
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+import schemas
+from database import get_db
 
 
 # Configuración para hashing de contraseñas
@@ -77,7 +77,7 @@ def authenticate_user(db: Session, email: str, password: str):
         return None
     return user
 
-# --- NUEVA FUNCIÓN AÑADIDA: Obtener el usuario actual a partir del token ---
+# --- Obtener el usuario actual a partir del token ---
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """
     Decodifica el token JWT del encabezado de autorización, valida las credenciales
@@ -93,7 +93,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         username: str = payload.get("sub") # 'sub' (subject) es donde guardamos el email del usuario
         if username is None:
             raise credentials_exception
-        token_data = schemas.TokenData(email=username) # Usamos el modelo TokenData para la validación
+        # Asegúrate de obtener el 'role' del payload para pasarlo a TokenData
+        user_role: Optional[str] = payload.get("role")
+        token_data = schemas.TokenData(email=username, role=user_role) # Pasa el rol a TokenData
     except JWTError:
         raise credentials_exception
 
@@ -101,21 +103,36 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     user = db.query(models.User).filter(models.User.email == token_data.email).first()
     if user is None:
         raise credentials_exception
+    # Agrega la verificación de inactividad si aplica aquí, o en la función de rol
+    # if not user.is_active:
+    #     raise HTTPException(status_code=400, detail="Usuario inactivo")
     return user
 
-# --- NUEVA FUNCIÓN AÑADIDA: Dependencia para verificar roles ---
-def get_current_active_user_by_role(required_roles: list[str]):
+
+# --- FUNCIÓN MODIFICADA: Dependencia para verificar roles (con admin como superusuario) ---
+def get_current_active_user_by_role(required_roles: Union[str, list[str]]): # <--- Tipo de 'required_roles' modificado
     """
     Dependencia de FastAPI para verificar si el usuario autenticado
-    tiene uno de los roles requeridos.
+    tiene uno de los roles requeridos. Los usuarios 'admin' tienen acceso
+    a todas las rutas protegidas por esta dependencia.
     """
+    # Aseguramos que required_roles sea siempre una lista para consistencia
+    if isinstance(required_roles, str):
+        required_roles = [required_roles]
+
     async def _get_current_active_user_by_role(
         current_user: schemas.UserOut = Depends(get_current_user)
     ):
+        # Lógica para que el rol 'admin' tenga acceso a todas las rutas
+        # que usen esta dependencia.
+        if current_user.role == schemas.Role.admin: # <--- Usamos el Enum para comparar 'admin'
+            return current_user # Si es admin, le damos acceso inmediatamente.
+
+        # Si no es admin, entonces verificamos si su rol está en los requeridos
         if current_user.role not in required_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="No tienes permiso para acceder a este recurso."
+                detail=f"No tienes permiso para acceder a este recurso. Requiere uno de los roles: {', '.join(required_roles)}" # Mensaje de error mejorado
             )
         return current_user
     return _get_current_active_user_by_role

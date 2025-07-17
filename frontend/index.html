@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedFreelance - Autenticación</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>RedFreelance - Autenticación</h1>
+
+        <div id="welcomeSection" style="display: none;">
+            <h2>Bienvenido/a <span id="userEmailDisplay"></span>!</h2>
+            <p>Tu rol es: <span id="userRoleDisplay"></span></p>
+            <button id="logoutButton">Cerrar Sesión</button>
+            <hr>
+            <h3>Rutas Protegidas por Rol:</h3>
+            <button id="clientDashboardButton">Acceder Dashboard Cliente</button>
+            <p id="clientMessage" class="error-message"></p>
+            <button id="freelancerProfileButton">Acceder Perfil Freelancer</button>
+            <p id="freelancerMessage" class="error-message"></p>
+            <button id="adminPanelButton">Acceder Panel Admin</button>
+            <p id="adminMessage" class="error-message"></p>
+        </div>
+
+        <div id="loginSection">
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" required>
+                <label for="loginPassword">Contraseña:</label>
+                <input type="password" id="loginPassword" required>
+                <button type="submit">Login</button>
+            </form>
+            <p id="loginMessage" class="error-message"></p>
+            <hr>
+            <p>¿No tienes una cuenta?</p>
+            <button id="goToRegisterButton">Registrar Usuario</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
