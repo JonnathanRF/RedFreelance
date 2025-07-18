@@ -1,165 +1,202 @@
 # 🔐 RedFreelance - Microservicio de Autenticación
 
-[cite_start]Bienvenido al microservicio de autenticación (`auth-service`) de la plataforma **RedFreelance**. [cite: 1] [cite_start]Este servicio es la base de seguridad del sistema, encargado del **registro**, **inicio de sesión** y **autorización** de usuarios mediante **JWT (JSON Web Tokens)**. [cite: 2]
+¡Bienvenido al microservicio de autenticación (`auth-service`) de la plataforma **RedFreelance**!  
+Este servicio es el núcleo de seguridad del sistema: gestiona el registro, inicio de sesión y autorización de usuarios mediante **JWT (JSON Web Tokens)**.
 
 ---
 
 ## 🚧 Estado del Proyecto
 
-✅ Funcionalidades principales completadas:
+✅ **Funcionalidades principales completadas**
 
-### ⚙️ Configuración de la Infraestructura
-- `Dockerfile` para construir imágenes con FastAPI.
-- [cite_start]`docker-compose.yml` para levantar el servicio con persistencia en SQLite (`auth.db`). [cite: 4]
-- Hot Reload para un desarrollo ágil.
+---
 
-### 👤 Gestión de Usuarios
-- [cite_start]`POST /register`: Registro seguro de usuarios con contraseña hasheada y rol (`client`, `freelancer` o `admin`). [cite: 5]
-- [cite_start]`POST /token`: Login y emisión de JWT. [cite: 6]
-- [cite_start]`GET /me/`: Información del usuario autenticado desde el token. [cite: 21]
+## ⚙️ Configuración de la Infraestructura
 
-### 🔐 Autorización Basada en Roles
-- [cite_start]Middleware de autorización (`get_current_active_user_by_role`) para restringir rutas según rol. [cite: 7]
-- [cite_start]Validaciones exitosas mediante pruebas de roles: acceso a recursos restringido según el tipo de usuario. [cite: 8]
-- [cite_start]Rutas protegidas para `client-dashboard/` [cite: 23][cite_start], `freelancer-profile/` [cite: 25] [cite_start]y `admin-panel/` [cite: 27] con validación de roles.
+- `Dockerfile` para construir la imagen de FastAPI.
+- `docker-compose.yml` para levantar múltiples servicios con persistencia (`auth.db`, `services.db`).
+- Hot Reload para desarrollo ágil.
 
-### 📧 Verificación de Email (En Curso)
-- **`is_verified` en el modelo de usuario:** Añadido un campo para rastrear el estado de verificación del correo electrónico.
-- **Generación de Token de Verificación:** Se crea un JWT específico para la verificación de email con una duración definida.
-- **`POST /register` modificado:** Después del registro, se enviará un correo electrónico con un enlace de verificación (implementación en progreso).
-- **`GET /verify-email/`:** Nuevo endpoint para procesar el token de verificación y marcar al usuario como verificado.
-- **Frontend de Verificación:** Página dedicada para mostrar el estado de la verificación (exitosa o fallida).
-- **Pendiente:** Integración completa del envío de emails (configuración de SMTP).
+---
 
-### 🚀 Frontend (Interacción con Auth-Service)
-- Interfaz de usuario básica para Registro e Inicio de Sesión.
-- **Navegación mejorada:** Separación de las vistas de Login y Registro en `index.html` y `register.html` respectivamente.
-- Manejo de respuestas de autenticación (tokens, mensajes de éxito/error).
-- Botones para probar el acceso a rutas protegidas por rol.
+## 👤 Gestión de Usuarios (`auth-service`)
+
+| Endpoint       | Método | Descripción                                               |
+|----------------|--------|-----------------------------------------------------------|
+| `/register`    | POST   | Registro de usuario con contraseña hasheada y rol.       |
+| `/token`       | POST   | Login y generación de JWT.                                |
+| `/me/`         | GET    | Devuelve datos del usuario autenticado vía JWT.           |
+
+---
+
+## 🔐 Autorización Basada en Roles
+
+- Middleware personalizado `get_current_active_user_by_role`.
+- Validación de accesos según los roles: `client`, `freelancer`, `admin`.
+- Rutas protegidas:
+  - `/client-dashboard/` (rol: client)
+  - `/freelancer-profile/` (rol: freelancer)
+  - `/admin-panel/` (rol: admin)
+
+---
+
+## 💼 Gestión de Servicios (`service-service`)
+
+CRUD completo para servicios ofrecidos por freelancers:
+
+| Endpoint                     | Método | Descripción                                      |
+|-----------------------------|--------|--------------------------------------------------|
+| `/services/`                | POST   | Crear nuevo servicio                             |
+| `/services/`                | GET    | Listar todos los servicios                       |
+| `/services/{id}`            | GET    | Obtener detalles de un servicio específico       |
+| `/services/{id}`            | PUT    | Actualizar un servicio existente                 |
+| `/services/{id}`            | DELETE | Eliminar un servicio                             |
+
+---
+
+## 🚀 Frontend
+
+- Interfaz HTML/CSS/JS para Registro e Inicio de Sesión.
+- Separación de vistas (`index.html`, `register.html`).
+- Manejo de respuestas de autenticación (tokens, errores).
+- Botones para probar rutas protegidas según el rol.
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-| Tecnología        | Uso                          |
-|-------------------|------------------------------|
-| **Python 3.9** | [cite_start]Backend                      | [cite: 10]
-| **FastAPI** | [cite_start]Framework web principal      | [cite: 11]
-| **SQLite** | [cite_start]Base de datos (con SQLAlchemy) | [cite: 12]
-| **JWT** | [cite_start]Autenticación con tokens     | [cite: 13]
-| **bcrypt / Passlib** | [cite_start]Hasheo de contraseñas      | [cite: 14]
-| **Docker** | [cite_start]Contenerización              | [cite: 15]
-| **Git** | [cite_start]Control de versiones         | 
-| **aiosmtplib** | Envío de correos electrónicos (para verificación) |
-| **HTML/CSS/JS** | Frontend de demostración     |
+| Tecnología     | Propósito                                         |
+|----------------|---------------------------------------------------|
+| **Python 3.9** | Backend                                           |
+| **FastAPI**    | Framework Web principal                           |
+| **SQLite**     | Base de datos (`auth.db`, `services.db`)          |
+| **JWT**        | Autenticación basada en tokens                    |
+| **bcrypt** / `passlib` | Hasheo de contraseñas                     |
+| **Docker**     | Contenerización                                   |
+| **Git**        | Control de versiones                              |
+| **aiosmtplib** | Envío de correos (verificación - funcionalidad pausada) |
+| **HTML/CSS/JS**| Frontend de prueba                                |
 
 ---
 
-## 💻 Cómo Ejecutar el Servicio
+## 💻 Cómo Ejecutar los Servicios
 
-1.  **Clonar el repositorio:**
+1. **Clonar el repositorio**
+```bash
+git clone https://github.com/tuusuario/RedFreelance.git
+cd RedFreelance
+```
 
-    ```bash
-    git clone [https://github.com/tuusuario/RedFreelance.git](https://github.com/tuusuario/RedFreelance.git)
-    cd RedFreelance
-    ```
+2. **Configurar variables de entorno (auth-service)**  
+Crea un archivo `.env` en `auth-service/` con las credenciales SMTP:
+```env
+SMTP_SERVER=smtp.ejemplo.com
+SMTP_PORT=587
+SMTP_USERNAME=usuario
+SMTP_PASSWORD=clave
+SENDER_EMAIL=noreply@redfreelance.com
+VERIFICATION_TOKEN_EXPIRE_HOURS=24
+```
 
-2.  **Configurar Variables de Entorno para el Envío de Email:**
-    Crea un archivo `.env` en la carpeta `auth-service/` y añade tus credenciales SMTP:
-    ```dotenv
-    # RedFreelance/auth-service/.env
-    SMTP_SERVER=tu_servidor_smtp # Ej: smtp.mailtrap.io, smtp.gmail.com
-    SMTP_PORT=tu_puerto_smtp     # Ej: 2525, 587
-    SMTP_USERNAME=tu_usuario_smtp
-    SMTP_PASSWORD=tu_password_smtp
-    SENDER_EMAIL=noreply@redfreelance.com
-    VERIFICATION_TOKEN_EXPIRE_HOURS=24
-    ```
+3. **Levantar servicios con Docker Compose**
+```bash
+docker-compose up --build
+```
+- 🔗 Auth-Service: [http://localhost:8000](http://localhost:8000)  
+- 🔗 Service-Service: [http://localhost:8001](http://localhost:8001)
 
-3.  **Ejecutar con Docker Compose:**
-
-    [cite_start]Asegúrate de tener Docker Desktop o Docker Engine instalado. [cite: 19]
-    ```bash
-    docker-compose up --build
-    ```
-    📌 El servicio de autenticación estará disponible en: `http://localhost:8000`
-
-4.  **Ejecutar el Frontend:**
-    En una nueva terminal, navega a la carpeta `RedFreelance/frontend/` y levanta un servidor HTTP simple:
-    ```bash
-    cd frontend
-    python -m http.server 3000
-    ```
-    📌 El frontend de demostración estará disponible en: `http://localhost:3000`
+4. **Levantar el frontend**
+```bash
+cd frontend
+python -m http.server 3000
+```
+- 🌐 Frontend: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🧪 Pruebas del Servicio (Postman u otro cliente HTTP)
+## 🧪 Pruebas (vía Postman u otro cliente HTTP)
 
-### 1. 📝 Registro (`POST /register`)
+### 📝 Registro de Usuario
+- **URL:** `POST http://localhost:8000/register`
+- **Body JSON:**
+```json
+{
+  "email": "ejemplo@correo.com",
+  "password": "contraseña_segura",
+  "role": "client"
+}
+```
 
--   **URL:** `http://localhost:8000/register`
--   **Headers:** `Content-Type: application/json`
--   **Body (JSON):**
-    ```json
-    {
-      "email": "ejemplo@correo.com",
-      "password": "contraseña_segura",
-      "role": "client"
-    }
-    ```
-    *Nota: Tras el registro, se enviará un email de verificación a esta dirección.*
+### 🔐 Inicio de Sesión
+- **URL:** `POST http://localhost:8000/token`
+- **Body x-www-form-urlencoded:**
+  - `username`: ejemplo@correo.com
+  - `password`: contraseña_segura
+- **Respuesta:** JWT con `access_token`
 
----
+### 🙋 Obtener Usuario Actual
+- **URL:** `GET /me/`
+- **Headers:** `Authorization: Bearer <ACCESS_TOKEN>`
 
-### 2. 🔐 Login (`POST /token`)
+### 🧩 Acceso según rol
 
--   **URL:** `http://localhost:8000/token`
--   **Body (x-www-form-urlencoded):**
-    -   `username`: `ejemplo@correo.com`
-    -   `password`: `contraseña_segura`
--   [cite_start]**Respuesta:** JWT con `access_token`. [cite: 20]
-
----
-
-### 3. 📧 Verificación de Email (`GET /verify-email/`)
-
--   **URL:** Enlace recibido por email (ej. `http://localhost:8000/verify-email/?token=eyJ...`)
--   **Comportamiento:** Marca el usuario como verificado y redirige al frontend.
-
----
-
-### 4. 🙋 Obtener Usuario Actual (`GET /me/`)
-
--   **Headers:**
-    -   `Authorization`: `Bearer <ACCESS_TOKEN>`
--   [cite_start]**Respuesta:** Datos del usuario autenticado. [cite: 21]
+| Ruta                    | Rol Requerido | Método | Código Esperado |
+|-------------------------|---------------|--------|-----------------|
+| `/client-dashboard/`    | client        | GET    | 200 OK / 403    |
+| `/freelancer-profile/`  | freelancer    | GET    | 200 OK / 403    |
+| `/admin-panel/`         | admin         | GET    | 200 OK / 403    |
 
 ---
 
-### 5. 🧩 Rutas Protegidas por Rol
+### 🛠️ Pruebas de Servicios
 
-| Ruta                        | Rol Requerido | Método | Código Esperado  |
-| :-------------------------- | :------------ | :----- | :--------------- |
-| `/client-dashboard/`        | client        | GET    | [cite_start]200 OK o 403     | [cite: 24]
-| `/freelancer-profile/`      | freelancer    | GET    | 200 OK o 403     |
-| `/admin-panel/`             | admin         | GET    | [cite_start]200 OK o 403     | [cite: 28]
+#### ➕ Crear Servicio
+```json
+{
+  "title": "Desarrollo Web con React",
+  "description": "Aplicaciones modernas con React y Node.js",
+  "price": 500.00,
+  "category": "Desarrollo Web"
+}
+```
+
+#### 📄 Listar Servicios
+- `GET http://localhost:8001/services/`
+
+#### 🔍 Obtener Servicio por ID
+- `GET http://localhost:8001/services/1`
+
+#### ✏️ Actualizar Servicio
+```json
+{
+  "title": "Diseño de Logotipos Avanzado",
+  "description": "Logotipos profesionales con revisiones ilimitadas.",
+  "price": 180.00,
+  "category": "Diseño Gráfico"
+}
+```
+
+#### 🗑️ Eliminar Servicio
+- `DELETE http://localhost:8001/services/1`
 
 ---
 
 ## 📌 Próximos Pasos
 
-1.  **Completar la implementación y prueba del envío de correos electrónicos** para la verificación de email.
-2.  **Añadir funcionalidad de "Reenviar email de verificación"** en el frontend para usuarios no verificados.
+- [ ] Restringir creación/edición de servicios solo a usuarios `freelancer`.
+- [ ] Asociar `freelancer_id` a los servicios mediante JWT.
+- [ ] Añadir filtros y búsquedas al listado de servicios.
+- [ ] Iniciar desarrollo del próximo microservicio (`order-service`, `chat-service`, etc).
 
 ---
 
 ## 🧠 Contribuciones
 
-¡Sugerencias, issues y PRs son bienvenidos! [cite_start]Este proyecto está en desarrollo y abierto a mejoras. [cite: 31]
+¡Pull Requests, Issues y sugerencias son más que bienvenidas!  
+Este proyecto está en constante desarrollo y aprendizaje.
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto está bajo la licencia [MIT](LICENSE).
+Este proyecto está licenciado bajo la **MIT License**.

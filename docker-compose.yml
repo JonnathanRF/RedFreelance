@@ -1,18 +1,26 @@
 # RedFreelance/docker-compose.yml
-
-version: '3.8' # Especifica la versión de Docker Compose
+version: '3.8' # Puedes quitar la línea 'version' si te molesta la advertencia, Docker Compose lo infiere.
 
 services:
-  auth-service: # Define un servicio llamado 'auth-service'
-    build: ./auth-service # Indica a Docker Compose que construya la imagen desde el Dockerfile en la carpeta auth-service/
+  auth-service: # Define el servicio de autenticación
+    build: ./auth-service # Construye la imagen desde el Dockerfile en ./auth-service
     ports:
       - "8000:8000" # Mapea el puerto 8000 del host al puerto 8000 del contenedor
     volumes:
-      - ./auth-service:/app # Monta el directorio local auth-service/ en /app dentro del contenedor
-      # Esto es útil para el desarrollo: los cambios en tu código local se reflejarán instantáneamente en el contenedor sin reconstruir la imagen.
-    environment:
-      # Aquí podemos añadir variables de entorno si fueran necesarias para el auth-service
-      # Por ejemplo, para configurar un secreto JWT o la conexión a una base de datos real más adelante.
-      PYTHONUNBUFFERED: 1 # Asegura que la salida de Python no se almacene en búfer, útil para ver logs en tiempo real
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload # Inicia la aplicación con auto-recarga
-    # El flag --reload es esencial para desarrollo, ya que recarga el servidor automáticamente al detectar cambios en el código
+      - ./auth-service:/app # Monta el directorio local para hot-reload
+    env_file: # <--- ¡IMPORTANTE! Carga las variables de entorno desde .env
+      - ./auth-service/.env
+    # command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload # Esta línea es mejor en el Dockerfile
+
+  service-service: # <--- ¡NUEVO SERVICIO AÑADIDO!
+    build: ./service-service # Construye la imagen desde el Dockerfile en ./service-service
+    ports:
+      - "8001:8001" # Mapea el puerto 8001 del host al puerto 8001 del contenedor
+    volumes:
+      - ./service-service:/app # Monta el directorio local para hot-reload
+    env_file: # Carga las variables de entorno para este servicio
+      - ./service-service/.env
+    depends_on: # Indica que auth-service debe iniciarse antes que service-service
+      - auth-service
+
+  # Aquí irían otros servicios como chat-service, order-service, etc.
