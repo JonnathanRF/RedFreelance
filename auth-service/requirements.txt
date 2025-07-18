@@ -1,5 +1,8 @@
+# RedFreelance/auth-service/requirements.txt
 fastapi==0.111.0
 uvicorn==0.30.1
 passlib[bcrypt]==1.7.4 # Para hashing de contraseñas
 python-jose[cryptography]==3.3.0 # Para JWT
 SQLAlchemy==2.0.30 # ORM para la base de datos
+psycopg2-binary==2.9.9 # Driver para PostgreSQL
+bcrypt==4.1.3 # Añadido para resolver el AttributeError con passlib

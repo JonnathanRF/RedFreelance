@@ -1,26 +1,52 @@
 # RedFreelance/docker-compose.yml
-version: '3.8' # Puedes quitar la línea 'version' si te molesta la advertencia, Docker Compose lo infiere.
+version: '3.8'
 
 services:
-  auth-service: # Define el servicio de autenticación
-    build: ./auth-service # Construye la imagen desde el Dockerfile en ./auth-service
+  # Servicio de Autenticación
+  auth-service:
+    build: ./auth-service
     ports:
-      - "8000:8000" # Mapea el puerto 8000 del host al puerto 8000 del contenedor
+      - "8000:8000"
     volumes:
-      - ./auth-service:/app # Monta el directorio local para hot-reload
-    env_file: # <--- ¡IMPORTANTE! Carga las variables de entorno desde .env
+      - ./auth-service:/app
+    env_file:
       - ./auth-service/.env
-    # command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload # Esta línea es mejor en el Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy # auth-service ahora espera que la DB esté saludable
 
-  service-service: # <--- ¡NUEVO SERVICIO AÑADIDO!
-    build: ./service-service # Construye la imagen desde el Dockerfile en ./service-service
+  # Servicio de Gestión de Servicios
+  service-service:
+    build: ./service-service
     ports:
-      - "8001:8001" # Mapea el puerto 8001 del host al puerto 8001 del contenedor
+      - "8001:8001"
     volumes:
-      - ./service-service:/app # Monta el directorio local para hot-reload
-    env_file: # Carga las variables de entorno para este servicio
+      - ./service-service:/app
+    env_file:
       - ./service-service/.env
-    depends_on: # Indica que auth-service debe iniciarse antes que service-service
-      - auth-service
+    depends_on:
+      db:
+        condition: service_healthy # service-service ahora espera que la DB esté saludable
+      auth-service:
+        condition: service_started # También depende de auth-service
 
-  # Aquí irían otros servicios como chat-service, order-service, etc.
+  # Servicio de Base de Datos PostgreSQL
+  db:
+    image: postgres:13-alpine # Usamos una imagen ligera de PostgreSQL 13
+    ports:
+      - "5432:5432" # Opcional: Mapea el puerto de PostgreSQL al host (útil para pgAdmin, etc.)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistencia de datos para PostgreSQL
+    environment: # Variables de entorno para configurar PostgreSQL
+      POSTGRES_DB: redfreelance_db # Nombre de la base de datos
+      POSTGRES_USER: user # Usuario de la base de datos
+      POSTGRES_PASSWORD: password # Contraseña del usuario
+    healthcheck: # Comprobación de salud para asegurar que la DB esté lista para conexiones
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s # Tiempo para que la DB inicie antes de empezar a chequear
+
+volumes: # Define el volumen para la persistencia de datos de PostgreSQL
+  postgres_data:

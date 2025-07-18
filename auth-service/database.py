@@ -3,17 +3,20 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os # Importar el módulo os para acceder a variables de entorno
+from dotenv import load_dotenv # Importar load_dotenv para cargar variables de entorno
 
-# URL de la base de datos SQLite
-# sqlite:///./auth.db significa que la base de datos se creará en un archivo llamado auth.db
-# en el mismo directorio donde se ejecute la aplicación (/app dentro del contenedor).
-SQLALCHEMY_DATABASE_URL = "sqlite:///./auth.db"
+# Cargar variables de entorno desde el archivo .env
+load_dotenv()
+
+# Obtener la URL de la base de datos desde las variables de entorno
+# Ahora apuntará a PostgreSQL según la configuración en .env
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
 # create_engine crea una instancia de Engine que permite a SQLAlchemy interactuar con la base de datos.
-# connect_args={"check_same_thread": False} es necesario para SQLite cuando se usa con FastAPI,
-# ya que SQLite por defecto solo permite que un hilo interactúe con él.
+# Eliminamos connect_args={"check_same_thread": False} porque es específico de SQLite y no es válido para PostgreSQL.
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL
 )
 
 # sessionmaker crea una clase Session local. Cada instancia de Session será una sesión de base de datos.

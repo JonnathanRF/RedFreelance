@@ -6,16 +6,18 @@ from sqlalchemy.orm import sessionmaker, Session, relationship
 from pydantic import BaseModel
 from typing import List, Optional
 import os
+from dotenv import load_dotenv # Import load_dotenv to load environment variables
 
-# Cargar variables de entorno
-from dotenv import load_dotenv
+# Load environment variables
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./services.db")
+# Get the database URL from environment variables
+# This will now point to PostgreSQL as configured in .env
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 Base = declarative_base()
 
-# --- Modelos de Base de Datos (SQLAlchemy) ---
+# --- Database Models (SQLAlchemy) ---
 class DBService(Base):
     __tablename__ = "services"
 
@@ -24,9 +26,9 @@ class DBService(Base):
     description = Column(String)
     price = Column(Float)
     category = Column(String, index=True)
-    freelancer_id = Column(Integer, index=True) # ID del freelancer que ofrece el servicio
+    freelancer_id = Column(Integer, index=True) # ID of the freelancer offering the service
 
-# --- Esquemas Pydantic (para validación de entrada/salida) ---
+# --- Pydantic Schemas (for input/output validation) ---
 class ServiceBase(BaseModel):
     title: str
     description: str
@@ -34,7 +36,7 @@ class ServiceBase(BaseModel):
     category: str
 
 class ServiceCreate(ServiceBase):
-    pass # No hay campos adicionales para la creación aparte de los base
+    pass # No additional fields for creation apart from base
 
 class ServiceUpdate(ServiceBase):
     title: Optional[str] = None
@@ -44,18 +46,20 @@ class ServiceUpdate(ServiceBase):
 
 class Service(ServiceBase):
     id: int
-    freelancer_id: int # Asegurarnos que este campo se incluya en la respuesta
+    freelancer_id: int # Ensure this field is included in the response
     class Config:
-        from_attributes = True # O from_orm = True en Pydantic v1.x
+        from_attributes = True # Or from_orm = True in Pydantic v1.x
 
-# --- Configuración de la Base de Datos ---
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# --- Database Configuration ---
+# Remove connect_args={"check_same_thread": False} because it's SQLite specific and not valid for PostgreSQL.
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Crear tablas de la base de datos
+# Create database tables
+# This will create the tables in PostgreSQL if they do not exist
 Base.metadata.create_all(bind=engine)
 
-# Dependencia para obtener la sesión de la base de datos
+# Dependency to get a database session
 def get_db():
     db = SessionLocal()
     try:
@@ -63,7 +67,7 @@ def get_db():
     finally:
         db.close()
 
-# --- Aplicación FastAPI ---
+# --- FastAPI Application ---
 app = FastAPI(title="Service Microservice", version="1.0.0")
 
 @app.get("/")
@@ -72,13 +76,13 @@ async def read_root():
 
 # --- Endpoints ---
 
-# Endpoint para crear un servicio
+# Endpoint to create a service
 @app.post("/services/", response_model=Service, status_code=status.HTTP_201_CREATED)
 async def create_service(service: ServiceCreate, db: Session = Depends(get_db)):
-    # TODO: Integrar con Auth Service para obtener el ID del freelancer autenticado.
-    # Por ahora, usaremos un ID de freelancer de prueba.
-    # La lógica real debería obtener el 'user_id' del token JWT.
-    fake_freelancer_id = 1 
+    # TODO: Integrate with Auth Service to get the authenticated freelancer ID.
+    # For now, we will use a test freelancer ID.
+    # The real logic should get the 'user_id' from the JWT token.
+    fake_freelancer_id = 1
 
     db_service = DBService(**service.model_dump(), freelancer_id=fake_freelancer_id)
     db.add(db_service)
@@ -86,13 +90,13 @@ async def create_service(service: ServiceCreate, db: Session = Depends(get_db)):
     db.refresh(db_service)
     return db_service
 
-# Endpoint para listar todos los servicios
+# Endpoint to list all services
 @app.get("/services/", response_model=List[Service])
 async def read_services(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     services = db.query(DBService).offset(skip).limit(limit).all()
     return services
 
-# Endpoint para obtener un servicio por ID
+# Endpoint to get a service by ID
 @app.get("/services/{service_id}", response_model=Service)
 async def read_service(service_id: int, db: Session = Depends(get_db)):
     service = db.query(DBService).filter(DBService.id == service_id).first()
@@ -100,43 +104,43 @@ async def read_service(service_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
     return service
 
-# --- NUEVO: Endpoint para actualizar un servicio ---
+# --- NEW: Endpoint to update a service ---
 @app.put("/services/{service_id}", response_model=Service)
 async def update_service(
-    service_id: int, 
-    service_update: ServiceUpdate, 
+    service_id: int,
+    service_update: ServiceUpdate,
     db: Session = Depends(get_db)
 ):
     service = db.query(DBService).filter(DBService.id == service_id).first()
     if service is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
-    
-    # TODO: Implementar autorización. Solo el freelancer propietario o un admin debería poder actualizar.
-    # current_user_id = obtener_id_del_usuario_autenticado()
+
+    # TODO: Implement authorization. Only the owning freelancer or an admin should be able to update.
+    # current_user_id = get_authenticated_user_id()
     # if service.freelancer_id != current_user_id and current_user_role != "admin":
     #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this service")
 
-    # Actualizar los campos del servicio
+    # Update service fields
     for key, value in service_update.model_dump(exclude_unset=True).items():
         setattr(service, key, value)
-    
-    db.add(service) # Añadir a la sesión para que SQLAlchemy detecte los cambios
+
+    db.add(service) # Add to session so SQLAlchemy detects changes
     db.commit()
     db.refresh(service)
     return service
 
-# --- NUEVO: Endpoint para eliminar un servicio ---
+# --- NEW: Endpoint to delete a service ---
 @app.delete("/services/{service_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_service(service_id: int, db: Session = Depends(get_db)):
     service = db.query(DBService).filter(DBService.id == service_id).first()
     if service is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
-    
-    # TODO: Implementar autorización. Solo el freelancer propietario o un admin debería poder eliminar.
-    # current_user_id = obtener_id_del_usuario_autenticado()
+
+    # TODO: Implement authorization. Only the owning freelancer or an admin should be able to delete.
+    # current_user_id = get_authenticated_user_id()
     # if service.freelancer_id != current_user_id and current_user_role != "admin":
     #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this service")
 
     db.delete(service)
     db.commit()
-    return {"message": "Service deleted successfully"} # FastAPI devolverá 204 No Content
+    return {"message": "Service deleted successfully"} # FastAPI will return 204 No Content
