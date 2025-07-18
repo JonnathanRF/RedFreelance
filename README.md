@@ -1,156 +1,98 @@
-🔐 RedFreelance - Microservicio de Autenticación
-¡Bienvenido al microservicio de autenticación (auth-service) de la plataforma RedFreelance! Este servicio es el núcleo de seguridad del sistema: gestiona el registro, inicio de sesión y autorización de usuarios mediante JWT (JSON Web Tokens).
+# 🔐 RedFreelance - Microservicio de Autenticación
 
-🚧 Estado del Proyecto
-✅ Funcionalidades principales completadas
+¡Bienvenido al microservicio de autenticación (`auth-service`) de la plataforma **RedFreelance**!  
+Este servicio es el núcleo de seguridad del sistema: gestiona el registro, inicio de sesión y autorización de usuarios mediante **JWT (JSON Web Tokens)**.
 
-⚙️ Configuración de la Infraestructura
-Dockerfile para construir la imagen de FastAPI.
+---
 
-docker-compose.yml para levantar múltiples servicios con persistencia, ahora utilizando PostgreSQL.
+## 🚧 Estado del Proyecto
 
-Hot Reload para desarrollo ágil.
+✅ Funcionalidades principales completadas.
 
-👤 Gestión de Usuarios (auth-service)
-Endpoint       
+---
 
-Método
+## ⚙️ Configuración de la Infraestructura
 
-Descripción                                               
+- `Dockerfile` para construir imagen con FastAPI.
+- `docker-compose.yml` para levantar servicios usando **PostgreSQL**.
+- Hot Reload para desarrollo ágil.
 
-/register   
+---
 
-POST   
+## 👤 Gestión de Usuarios (`auth-service`)
 
-Registro de usuario con contraseña hasheada y rol.       
+| Endpoint     | Método | Descripción                                               |
+|--------------|--------|-----------------------------------------------------------|
+| `/register`  | POST   | Registro de usuario con contraseña hasheada y rol.       |
+| `/token`     | POST   | Login y generación de JWT.                                |
+| `/me/`       | GET    | Devuelve datos del usuario autenticado vía JWT.           |
 
-/token       
+---
 
-POST   
+## 🔐 Autorización Basada en Roles
 
-Login y generación de JWT.                               
+- Middleware `get_current_active_user_by_role`.
+- Acceso controlado según el rol del usuario (`client`, `freelancer`, `admin`).
+- Rutas protegidas:
+  - `/client-dashboard/` → `client`
+  - `/freelancer-profile/` → `freelancer`
+  - `/admin-panel/` → `admin`
 
-/me/         
+---
 
-GET   
+## 💼 Gestión de Servicios (`service-service`)
 
-Devuelve datos del usuario autenticado vía JWT.           
+| Endpoint             | Método | Descripción                                 |
+|----------------------|--------|---------------------------------------------|
+| `/services/`         | POST   | Crear un nuevo servicio                     |
+| `/services/`         | GET    | Listar todos los servicios                  |
+| `/services/{id}`     | GET    | Obtener detalles de un servicio específico  |
+| `/services/{id}`     | PUT    | Actualizar un servicio existente            |
+| `/services/{id}`     | DELETE | Eliminar un servicio                        |
 
-🔐 Autorización Basada en Roles
-Middleware personalizado get_current_active_user_by_role.
+---
 
-Validación de accesos según los roles: client, freelancer, admin.
+## 🚀 Frontend
 
-Rutas protegidas:
-  - /client-dashboard/ (rol: client)
-  - /freelancer-profile/ (rol: freelancer)
-  - /admin-panel/ (rol: admin)
+- Interfaz HTML/CSS/JS para Registro e Inicio de Sesión.
+- Separación de vistas: `index.html`, `register.html`.
+- Manejo de respuestas de autenticación (tokens, errores).
+- Botones de prueba para rutas protegidas.
 
-💼 Gestión de Servicios (service-service)
-CRUD completo para servicios ofrecidos por freelancers:
+---
 
-Endpoint                     
+## 🛠️ Tecnologías Utilizadas
 
-Método
+| Tecnología        | Propósito                                                       |
+|-------------------|------------------------------------------------------------------|
+| Python 3.9        | Backend principal                                                |
+| FastAPI           | Framework web                                                    |
+| PostgreSQL        | Base de datos robusta y escalable                                |
+| psycopg2-binary   | Driver PostgreSQL para Python                                    |
+| JWT               | Autenticación basada en tokens                                   |
+| bcrypt/passlib    | Hasheo seguro de contraseñas                                     |
+| Docker            | Contenerización                                                  |
+| Git               | Control de versiones                                             |
+| aiosmtplib        | Envío de correos (verificación - pausado)                        |
+| HTML/CSS/JS       | Frontend de prueba                                               |
 
-Descripción                                     
+---
 
-/services/               
+## 💻 Cómo Ejecutar los Servicios
 
-POST   
+### 1. Clonar el repositorio
 
-Crear nuevo servicio                             
-
-/services/               
-
-GET   
-
-Listar todos los servicios                       
-
-/services/{id}           
-
-GET   
-
-Obtener detalles de un servicio específico       
-
-/services/{id}           
-
-PUT   
-
-Actualizar un servicio existente                 
-
-/services/{id}           
-
-DELETE
-
-Eliminar un servicio                             
-
-🚀 Frontend
-Interfaz HTML/CSS/JS para Registro e Inicio de Sesión.
-
-Separación de vistas (index.html, register.html).
-
-Manejo de respuestas de autenticación (tokens, errores).
-
-Botones para probar rutas protegidas según el rol.
-
-🛠️ Tecnologías Utilizadas
-Tecnología     
-
-Propósito                                         
-
-Python 3.9
-
-Backend                                           
-
-FastAPI   
-
-Framework Web principal                           
-
-PostgreSQL
-
-Base de datos relacional robusta y escalable   
-
-psycopg2-binary
-
-Driver de PostgreSQL para Python           
-
-JWT       
-
-Autenticación basada en tokens                   
-
-bcrypt / passlib
-
-Hasheo de contraseñas (ahora sin advertencias)
-
-Docker     
-
-Contenerización                                   
-
-Git       
-
-Control de versiones                             
-
-aiosmtplib
-
-Envío de correos (verificación - funcionalidad pausada)
-
-HTML/CSS/JS
-
-Frontend de prueba                               
-
-💻 Cómo Ejecutar los Servicios
-Clonar el repositorio
-
+```bash
 git clone https://github.com/tuusuario/RedFreelance.git
 cd RedFreelance
+```
 
-Configurar variables de entorno
-Crea un archivo .env en auth-service/ y otro en service-service/ con las siguientes configuraciones:
+### 2. Configurar variables de entorno
 
-RedFreelance/auth-service/.env
+#### `auth-service/.env`
 
-# Configuración para el Envío de Correos (funcionalidad pausada)
+```env
+# SMTP (verificación de correo - opcional)
 SMTP_SERVER=smtp.ejemplo.com
 SMTP_PORT=587
 SMTP_USERNAME=usuario
@@ -158,141 +100,147 @@ SMTP_PASSWORD=clave
 SENDER_EMAIL=noreply@redfreelance.com
 VERIFICATION_TOKEN_EXPIRE_HOURS=24
 
-# Configuración de la Base de Datos PostgreSQL para Auth Service
+# Base de datos PostgreSQL
 DATABASE_URL="postgresql+psycopg2://user:password@db:5432/redfreelance_db"
+```
 
-RedFreelance/service-service/.env
+#### `service-service/.env`
 
-# Configuración de la Base de Datos PostgreSQL para Service Service
+```env
 DATABASE_URL="postgresql+psycopg2://user:password@db:5432/redfreelance_db"
+```
 
-Levantar servicios con Docker Compose
+### 3. Levantar servicios
 
+```bash
 docker-compose up --build
+```
 
-🔗 Auth-Service: http://localhost:8000  
+- 🔗 Auth-Service: [http://localhost:8000](http://localhost:8000)  
+- 🔗 Service-Service: [http://localhost:8001](http://localhost:8001)
 
-🔗 Service-Service: http://localhost:8001
+### 4. Levantar el frontend
 
-Levantar el frontend
-
+```bash
 cd frontend
 python -m http.server 3000
+```
 
-🌐 Frontend: http://localhost:3000
+- 🌐 Frontend: [http://localhost:3000](http://localhost:3000)
 
-🧪 Pruebas (vía Postman u otro cliente HTTP)
-📝 Registro de Usuario (auth-service)
-URL: POST http://localhost:8000/register
+---
 
-Body JSON:
+## 🧪 Pruebas de Funcionalidad (Postman u otro cliente HTTP)
 
-{
-  "email": "ejemplo@correo.com",
-  "password": "contraseña_segura",
-  "role": "client"
-}
+### 📝 Registro de Usuario
 
-🔐 Inicio de Sesión (auth-service)
-URL: POST http://localhost:8000/token
-
-Body x-www-form-urlencoded:
-  - username: ejemplo@correo.com
-  - password: contraseña_segura
-
-Respuesta: JWT con access_token
-
-🙋 Obtener Usuario Actual (auth-service)
-URL: GET http://localhost:8000/me/
-
-Headers: Authorization: Bearer <ACCESS_TOKEN>
-
-🧩 Acceso según rol (auth-service)
-Ruta                   
-
-Rol Requerido
-
-Método
-
-Código Esperado
-
-/client-dashboard/   
-
-client       
-
-GET   
-
-200 OK / 403   
-
-/freelancer-profile/ 
-
-freelancer   
-
-GET   
-
-200 OK / 403   
-
-/admin-panel/         
-
-admin         
-
-GET   
-
-200 OK / 403   
-
-🛠️ Pruebas de Servicios (service-service)
-➕ Crear Servicio
-URL: POST http://localhost:8001/services/
-
-Headers: Content-Type: application/json (Opcional: Authorization: Bearer <ACCESS_TOKEN>)
-
-Body JSON:
+```http
+POST http://localhost:8000/register
+Content-Type: application/json
 
 {
-  "title": "Desarrollo Web con React",
-  "description": "Aplicaciones modernas con React y Node.js",
-  "price": 500.00,
-  "category": "Desarrollo Web"
+  "email": "ejemplo@correo.com",
+  "password": "contraseña_segura",
+  "role": "client"
 }
+```
 
-📄 Listar Servicios
-URL: GET http://localhost:8001/services/
+### 🔐 Inicio de Sesión
 
-🔍 Obtener Servicio por ID
-URL: GET http://localhost:8001/services/1
+```http
+POST http://localhost:8000/token
+Content-Type: application/x-www-form-urlencoded
 
-✏️ Actualizar Servicio
-URL: PUT http://localhost:8001/services/1
+username=ejemplo@correo.com
+password=contraseña_segura
+```
 
-Headers: Content-Type: application/json (Opcional: Authorization: Bearer <ACCESS_TOKEN>)
+### 🙋 Obtener Usuario Actual
 
-Body JSON:
+```http
+GET http://localhost:8000/me/
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+### 🧩 Acceso por Rol
+
+| Ruta                    | Rol Requerido | Método | Código Esperado |
+|-------------------------|---------------|--------|-----------------|
+| `/client-dashboard/`    | client        | GET    | 200 OK / 403    |
+| `/freelancer-profile/`  | freelancer    | GET    | 200 OK / 403    |
+| `/admin-panel/`         | admin         | GET    | 200 OK / 403    |
+
+---
+
+## 🛠️ Pruebas de Servicios (`service-service`)
+
+### ➕ Crear Servicio
+
+```http
+POST http://localhost:8001/services/
+Authorization: Bearer <ACCESS_TOKEN>
+Content-Type: application/json
 
 {
-  "title": "Diseño de Logotipos Avanzado",
-  "description": "Logotipos profesionales con revisiones ilimitadas.",
-  "price": 180.00,
-  "category": "Diseño Gráfico"
+  "title": "Desarrollo Web con React",
+  "description": "Aplicaciones modernas con React y Node.js",
+  "price": 500.00,
+  "category": "Desarrollo Web"
 }
+```
 
-🗑️ Eliminar Servicio
-URL: DELETE http://localhost:8001/services/1
+### 📄 Listar Servicios
 
-Headers: (Opcional: Authorization: Bearer <ACCESS_TOKEN>)
+```http
+GET http://localhost:8001/services/
+```
 
-📌 Próximos Pasos
-[ ] Integrar autorización en service-service:
+### 🔍 Obtener Servicio por ID
 
-Proteger los endpoints de creación, actualización y eliminación de servicios para que solo los usuarios autenticados con el rol freelancer puedan crear sus propios servicios.
+```http
+GET http://localhost:8001/services/1
+```
 
-Obtener el freelancer_id real del usuario autenticado (desde el JWT del auth-service) y asignarlo a los servicios creados.
+### ✏️ Actualizar Servicio
 
-[ ] Añadir filtros y búsquedas al listado de servicios.
+```http
+PUT http://localhost:8001/services/1
+Authorization: Bearer <ACCESS_TOKEN>
+Content-Type: application/json
 
-[ ] Iniciar desarrollo del próximo microservicio (order-service, chat-service, etc).
+{
+  "title": "Diseño de Logotipos Avanzado",
+  "description": "Logotipos profesionales con revisiones ilimitadas.",
+  "price": 180.00,
+  "category": "Diseño Gráfico"
+}
+```
 
-🧠 Contribuciones
-¡Pull Requests, Issues y sugerencias son más que bienvenidas! Este proyecto está en constante desarrollo y aprendizaje.
+### 🗑️ Eliminar Servicio
 
-📄 Licencia
-Este proyecto está licenciado bajo la MIT License.
+```http
+DELETE http://localhost:8001/services/1
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+---
+
+## 📌 Próximos Pasos
+
+- [ ] Proteger endpoints sensibles de `service-service` para usuarios `freelancer` autenticados.
+- [ ] Asociar servicios al `freelancer_id` usando el JWT.
+- [ ] Implementar búsqueda y filtrado de servicios.
+- [ ] Desarrollar siguiente microservicio: `order-service`, `chat-service`, etc.
+
+---
+
+## 🧠 Contribuciones
+
+¡Pull Requests, Issues y sugerencias son bienvenidas!  
+Este proyecto está en constante mejora y abierto a colaboración.
+
+---
+
+## 📄 Licencia
+
+Distribuido bajo licencia **MIT**.
