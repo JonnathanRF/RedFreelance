@@ -1,0 +1,140 @@
+/* RedFreelance/frontend/css/base.css */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
+    background-color: #20232a; /* Fondo oscuro principal */
+    color: #e0e0e0; /* Color de texto claro */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Alinea el contenido al inicio verticalmente */
+    min-height: 100vh; /* Ocupa al menos el 100% de la altura del viewport */
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: #282c34; /* Fondo más claro para el contenedor */
+    padding: 30px;
+    border-radius: 12px; /* Bordes más redondeados */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Sombra más pronunciada */
+    width: 100%;
+    max-width: 550px; /* Ancho máximo ligeramente mayor */
+    text-align: center;
+    margin-bottom: 20px; /* Espacio inferior para cuando hay scroll */
+    border: 1px solid #3a3f4a; /* Borde sutil */
+}
+
+h1, h2, h3 {
+    color: #61dafb; /* Color de los títulos (azul brillante) */
+    margin-bottom: 25px; /* Más espacio debajo de los títulos */
+    font-weight: 600; /* Ligeramente más negrita */
+}
+
+h1 {
+    font-size: 2.2em;
+}
+
+h2 {
+    font-size: 1.8em;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Más espacio entre elementos del formulario */
+    margin-bottom: 25px;
+}
+
+label {
+    align-self: flex-start; /* Alinea las etiquetas a la izquierda */
+    font-weight: bold;
+    color: #e0e0e0; /* Color de texto claro para etiquetas */
+    margin-top: 5px;
+    font-size: 0.95em; /* Ligeramente más grande */
+}
+
+input[type="email"],
+input[type="password"],
+select,
+textarea,
+input[type="text"],
+input[type="number"] {
+    padding: 12px 18px; /* Más padding */
+    border-radius: 8px; /* Bordes más redondeados */
+    border: 1px solid #4a4f5b; /* Borde oscuro */
+    background-color: #1a1c20; /* Fondo más oscuro para inputs */
+    color: #e0e0e0; /* Color de texto claro para inputs */
+    font-size: 1em;
+    width: 100%; /* Ocupa todo el ancho disponible */
+    box-sizing: border-box; /* Incluye padding y borde en el ancho */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus,
+input[type="text"]:focus,
+input[type="number"]:focus {
+    outline: none;
+    border-color: #61dafb; /* Borde azul al enfocar */
+    box-shadow: 0 0 0 4px rgba(97, 218, 251, 0.3); /* Sombra azul al enfocar */
+}
+
+button {
+    background-color: #61dafb; /* Fondo azul para botones */
+    color: #20232a; /* Color de texto oscuro para botones */
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+    padding: 12px 20px; /* Más padding para botones */
+    border: none;
+    border-radius: 8px; /* Bordes más redondeados */
+    font-size: 1.05em; /* Ligeramente más grande */
+    letter-spacing: 0.5px; /* Espaciado de letras */
+}
+
+button:hover {
+    background-color: #4fa3d1; /* Azul más oscuro al pasar el ratón */
+    transform: translateY(-2px); /* Efecto de levantamiento */
+}
+
+button:active {
+    transform: translateY(0); /* Vuelve a la posición normal al hacer clic */
+}
+
+hr {
+    border: none;
+    border-top: 1px dashed #4a4f5b; /* Línea divisoria punteada */
+    margin: 30px 0;
+}
+
+/* Mensajes de éxito y error (OCULTOS POR DEFECTO) */
+.success-message,
+.error-message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    display: none; /* ¡IMPORTANTE: OCULTAR POR DEFECTO! */
+}
+
+.success-message {
+    color: #28a745; /* Verde */
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.error-message {
+    color: #dc3545; /* Rojo */
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+/* Estilos para el texto "¿Ya tienes una cuenta?" */
+.container p {
+    color: #b0b0b0; /* Un gris más suave */
+    margin-bottom: 15px;
+}

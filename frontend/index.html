@@ -4,28 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RedFreelance - Autenticación</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
     <div class="container">
-        <h1>RedFreelance - Autenticación</h1>
+        <h1>RedFreelance</h1>
+        <h2>Autenticación de Usuarios</h2>
 
         <div id="welcomeSection" style="display: none;">
-            <h2>Bienvenido/a <span id="userEmailDisplay"></span>!</h2>
+            <h3>Bienvenido/a <span id="userEmailDisplay"></span>!</h3>
             <p>Tu rol es: <span id="userRoleDisplay"></span></p>
             <button id="logoutButton">Cerrar Sesión</button>
             <hr>
-            <h3>Rutas Protegidas por Rol:</h3>
+            <h4>Rutas Protegidas por Rol:</h4>
             <button id="clientDashboardButton">Acceder Dashboard Cliente</button>
-            <p id="clientMessage" class="error-message"></p>
+            <p id="clientMessage" class="error-message" style="display: none;"></p>
             <button id="freelancerProfileButton">Acceder Perfil Freelancer</button>
-            <p id="freelancerMessage" class="error-message"></p>
+            <p id="freelancerMessage" class="error-message" style="display: none;"></p>
             <button id="adminPanelButton">Acceder Panel Admin</button>
-            <p id="adminMessage" class="error-message"></p>
+            <p id="adminMessage" class="error-message" style="display: none;"></p>
+            <!-- El botón de ir a servicios se añadirá dinámicamente con JS -->
         </div>
 
         <div id="loginSection">
-            <h2>Iniciar Sesión</h2>
+            <h3>Iniciar Sesión</h3>
             <form id="loginForm">
                 <label for="loginEmail">Email:</label>
                 <input type="email" id="loginEmail" required>
@@ -33,13 +36,13 @@
                 <input type="password" id="loginPassword" required>
                 <button type="submit">Login</button>
             </form>
-            <p id="loginMessage" class="error-message"></p>
+            <p id="loginMessage" class="error-message" style="display: none;"></p>
             <hr>
             <p>¿No tienes una cuenta?</p>
             <button id="goToRegisterButton">Registrar Usuario</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>

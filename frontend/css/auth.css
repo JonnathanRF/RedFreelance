@@ -1,0 +1,31 @@
+/* RedFreelance/frontend/css/auth.css */
+
+/* Estilos específicos para las secciones de autenticación (login y registro) */
+#loginSection,
+#registerSection,
+#welcomeSection {
+    margin-top: 20px;
+}
+
+/* Ajustes para los botones de rol en la sección de bienvenida */
+#welcomeSection button {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    display: block; /* Para que cada botón ocupe su propia línea */
+    width: 100%;
+}
+
+#welcomeSection p.error-message {
+    margin-bottom: 15px;
+}
+
+/* Estilo para el botón "Ir a Gestión de Servicios" que se añade dinámicamente */
+#goToServicesButton {
+    background-color: #20c997; /* Un verde/cian diferente para este botón */
+    color: #20232a;
+    margin-top: 20px; /* Más espacio */
+}
+
+#goToServicesButton:hover {
+    background-color: #17a2b8; /* Un azul/cian más oscuro */
+}

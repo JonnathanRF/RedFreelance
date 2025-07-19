@@ -1,6 +1,7 @@
 # RedFreelance/service-service/main.py
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Header, Query
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
@@ -68,7 +69,7 @@ class UserInToken(BaseModel):
     id: int
     email: str
     role: str
-    is_active: bool = True
+    is_active: bool = True # Asumiendo que siempre está activo si el token es válido
 
 # --- Database Configuration ---
 engine = create_engine(DATABASE_URL)
@@ -122,6 +123,22 @@ async def get_current_admin(current_user: UserInToken = Depends(get_current_user
 # --- FastAPI Application ---
 app = FastAPI(title="Service Microservice", version="1.0.0")
 
+# Configuración de CORS para permitir peticiones desde el frontend
+origins = [
+    "http://localhost",
+    "http://localhost:3000", # Tu frontend
+    "http://127.0.0.1",
+    "http://127.0.0.1:3000", # Por si acaso
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Permite todos los métodos (GET, POST, PUT, DELETE, OPTIONS)
+    allow_headers=["*"], # Permite todos los encabezados
+)
+
 @app.get("/")
 async def read_root():
     return {"message": "Welcome to the Service Microservice!"}
@@ -140,10 +157,30 @@ async def create_service(
     db.refresh(db_service)
     return db_service
 
+# MODIFICADO: Ahora puede filtrar por freelancer_id
 @app.get("/services/", response_model=List[Service])
-async def read_services(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    services = db.query(DBService).offset(skip).limit(limit).all()
+async def read_services(
+    freelancer_id: Optional[int] = Query(None, description="Filtrar servicios por ID de freelancer"),
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    query = db.query(DBService)
+    if freelancer_id is not None:
+        query = query.filter(DBService.freelancer_id == freelancer_id)
+    services = query.offset(skip).limit(limit).all()
     return services
+
+# NUEVO ENDPOINT: Obtener los servicios del freelancer autenticado
+@app.get("/services/my/", response_model=List[Service])
+async def read_my_services(
+    current_freelancer: UserInToken = Depends(get_current_freelancer),
+    db: Session = Depends(get_db)
+):
+    # Reutilizamos la lógica de read_services para filtrar por el ID del freelancer actual
+    # ¡IMPORTANTE: Añadir 'await' aquí!
+    return await read_services(freelancer_id=current_freelancer.id, db=db)
+
 
 @app.get("/services/{service_id}", response_model=Service)
 async def read_service(service_id: int, db: Session = Depends(get_db)):

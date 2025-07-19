@@ -1,0 +1,121 @@
+/* RedFreelance/frontend/css/services.css */
+
+/* Estilos para la cuadrícula de servicios */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+    padding: 15px; /* Más padding */
+    background-color: #282c34; /* Fondo oscuro para que combine */
+    border-radius: 12px;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.2); /* Sombra interna sutil */
+    border: 1px solid #3a3f4a;
+}
+
+.service-card {
+    background-color: #1a1c20; /* Fondo más oscuro para las tarjetas */
+    border: 1px solid #3a3f4a;
+    border-radius: 10px; /* Bordes más redondeados */
+    padding: 20px; /* Más padding */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #e0e0e0; /* Color de texto claro */
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.service-card h3 {
+    color: #61dafb; /* Color de título azul */
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.3em; /* Ligeramente más grande */
+}
+
+.service-card p {
+    color: #b0b0b0; /* Un gris más suave para párrafos */
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.service-card p strong {
+    color: #61dafb; /* Color azul para strong */
+}
+
+.service-card .manage-button {
+    background-color: #28a745; /* Verde para gestionar */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    margin-top: 15px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.service-card .manage-button:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+/* Estilos para el formulario de gestión/actualización */
+#manageServiceSection form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#manageServiceSection label {
+    font-weight: bold;
+    margin-top: 5px;
+    color: #e0e0e0; /* Color de texto claro para labels */
+}
+
+/* Los inputs y textareas ya están cubiertos por los estilos generales en base.css */
+
+#manageServiceSection button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 15px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#updateServiceButton {
+    background-color: #007bff; /* Azul para actualizar */
+    color: white;
+}
+
+#updateServiceButton:hover {
+    background-color: #0056b3;
+}
+
+.delete-button {
+    background-color: #dc3545; /* Rojo para eliminar */
+    color: white;
+    margin-left: 10px; /* Espacio entre actualizar y eliminar */
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+.cancel-button {
+    background-color: #6c757d; /* Gris para cancelar */
+    color: white;
+    margin-left: 10px;
+}
+
+.cancel-button:hover {
+    background-color: #5a6268;
+}
