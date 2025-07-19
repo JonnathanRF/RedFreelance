@@ -93,7 +93,8 @@ def login_for_access_token(
     # Aquí podríamos añadir lógica para definir expiración del token basada en el rol, si es necesario.
     access_token_expires = security.timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
-        data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
+        data={"sub": user.email, "role": user.role, "user_id": user.id}, # <--- ¡Añadido user.id aquí!
+        expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 

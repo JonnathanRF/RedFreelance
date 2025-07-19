@@ -7,13 +7,14 @@ Este servicio es el núcleo de seguridad del sistema: gestiona el registro, inic
 
 ## 🚧 Estado del Proyecto
 
-✅ Funcionalidades principales completadas.
+✅ Funcionalidades principales completadas  
+✅ Autorización integrada en `service-service`
 
 ---
 
 ## ⚙️ Configuración de la Infraestructura
 
-- `Dockerfile` para construir imagen con FastAPI.
+- `Dockerfile` para construir la imagen de FastAPI.
 - `docker-compose.yml` para levantar servicios usando **PostgreSQL**.
 - Hot Reload para desarrollo ágil.
 
@@ -42,21 +43,23 @@ Este servicio es el núcleo de seguridad del sistema: gestiona el registro, inic
 
 ## 💼 Gestión de Servicios (`service-service`)
 
-| Endpoint             | Método | Descripción                                 |
-|----------------------|--------|---------------------------------------------|
-| `/services/`         | POST   | Crear un nuevo servicio                     |
-| `/services/`         | GET    | Listar todos los servicios                  |
-| `/services/{id}`     | GET    | Obtener detalles de un servicio específico  |
-| `/services/{id}`     | PUT    | Actualizar un servicio existente            |
-| `/services/{id}`     | DELETE | Eliminar un servicio                        |
+CRUD completo con protección por roles:
+
+| Endpoint             | Método | Acceso                       | Descripción                                  |
+|----------------------|--------|------------------------------|----------------------------------------------|
+| `/services/`         | POST   | Solo freelancers             | Crear un nuevo servicio                      |
+| `/services/`         | GET    | Público                      | Listar todos los servicios                   |
+| `/services/{id}`     | GET    | Público                      | Obtener detalles de un servicio específico   |
+| `/services/{id}`     | PUT    | Propietario o admin          | Actualizar un servicio existente             |
+| `/services/{id}`     | DELETE | Propietario o admin          | Eliminar un servicio                         |
 
 ---
 
 ## 🚀 Frontend
 
 - Interfaz HTML/CSS/JS para Registro e Inicio de Sesión.
-- Separación de vistas: `index.html`, `register.html`.
-- Manejo de respuestas de autenticación (tokens, errores).
+- Vistas separadas: `index.html`, `register.html`.
+- Manejo de tokens y errores de autenticación.
 - Botones de prueba para rutas protegidas.
 
 ---
@@ -102,15 +105,23 @@ VERIFICATION_TOKEN_EXPIRE_HOURS=24
 
 # Base de datos PostgreSQL
 DATABASE_URL="postgresql+psycopg2://user:password@db:5432/redfreelance_db"
+
+# Clave secreta para JWT
+SECRET_KEY="9fKK38TLROXvkgZ_BLUweAYe40TXyYm5J55txx21MXc"
 ```
 
 #### `service-service/.env`
 
 ```env
 DATABASE_URL="postgresql+psycopg2://user:password@db:5432/redfreelance_db"
+
+# Clave secreta compartida con auth-service
+SECRET_KEY="9fKK38TLROXvkgZ_BLUweAYe40TXyYm5J55txx21MXc"
+ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
-### 3. Levantar servicios
+### 3. Levantar los servicios
 
 ```bash
 docker-compose up --build
@@ -130,7 +141,7 @@ python -m http.server 3000
 
 ---
 
-## 🧪 Pruebas de Funcionalidad (Postman u otro cliente HTTP)
+## 🧪 Pruebas (Postman u otro cliente HTTP)
 
 ### 📝 Registro de Usuario
 
@@ -227,10 +238,8 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 ## 📌 Próximos Pasos
 
-- [ ] Proteger endpoints sensibles de `service-service` para usuarios `freelancer` autenticados.
-- [ ] Asociar servicios al `freelancer_id` usando el JWT.
-- [ ] Implementar búsqueda y filtrado de servicios.
-- [ ] Desarrollar siguiente microservicio: `order-service`, `chat-service`, etc.
+- [ ] Implementar búsqueda y filtrado por título, categoría y rango de precios.
+- [ ] Desarrollar el siguiente microservicio (`order-service`, `chat-service`, etc).
 
 ---
 
