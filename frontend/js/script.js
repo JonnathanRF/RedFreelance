@@ -30,11 +30,18 @@ let goToServicesButton; // Declarar aquí para que sea accesible
 function showMessage(element, message, isError = false) {
     if (element) { // Asegurarse de que el elemento exista
         element.textContent = message;
-        element.className = isError ? 'error-message' : 'success-message';
-        element.style.display = 'block';
+        element.classList.remove('hidden'); // Asegurarse de que sea visible
+        // Reemplazar clases de éxito/error con las de Tailwind
+        element.classList.remove('bg-red-200', 'text-red-800', 'bg-green-200', 'text-green-800'); // Limpiar clases previas
+        element.classList.add('p-3', 'rounded-lg', 'mt-4', 'font-bold', 'text-sm'); // Clases base para mensajes
+        if (isError) {
+            element.classList.add('bg-red-200', 'text-red-800');
+        } else {
+            element.classList.add('bg-green-200', 'text-green-800');
+        }
         setTimeout(() => {
             if (element) { // Volver a verificar antes de ocultar
-                element.style.display = 'none';
+                element.classList.add('hidden'); // Ocultar después de un tiempo
                 element.textContent = '';
             }
         }, 5000);
@@ -59,13 +66,18 @@ function decodeJwt(token) {
 // Función para actualizar la UI según el estado de autenticación
 function updateUIForAuthStatus() {
     const token = localStorage.getItem('accessToken');
+    // Esta función se ejecuta en index.html y register.html
+    // En index.html, decide si mostrar login o bienvenida
+    // En register.html, solo se asegura de que el botón "Iniciar Sesión" funcione.
+
     if (token) {
         const decodedToken = decodeJwt(token);
         if (decodedToken && decodedToken.exp * 1000 > Date.now()) {
-            // Token válido y no expirado
-            if (loginSection) loginSection.style.display = 'none';
-            if (welcomeSection) {
-                welcomeSection.style.display = 'block';
+            // Token válido y no expirado:
+            // Si estamos en index.html, mostrar la sección de bienvenida
+            if (loginSection && welcomeSection) { // Estamos en index.html
+                loginSection.classList.add('hidden');
+                welcomeSection.classList.remove('hidden');
                 if (userEmailDisplay) userEmailDisplay.textContent = decodedToken.sub; // 'sub' es el email
                 if (userRoleDisplay) userRoleDisplay.textContent = decodedToken.role;
 
@@ -74,31 +86,43 @@ function updateUIForAuthStatus() {
                     goToServicesButton = document.createElement('button');
                     goToServicesButton.id = 'goToServicesButton';
                     goToServicesButton.textContent = 'Ir a Gestión de Servicios';
-                    goToServicesButton.style.marginTop = '10px';
+                    goToServicesButton.classList.add(
+                        'w-full', 'bg-blue-500', 'text-white', 'py-3', 'rounded-lg', 'font-bold',
+                        'hover:bg-blue-600', 'transition-all', 'duration-200', 'ease-in-out', 'shadow-md', 'active:scale-95',
+                        'mt-4' // Margen superior
+                    );
                     welcomeSection.appendChild(goToServicesButton);
                     goToServicesButton.addEventListener('click', () => {
                         window.location.href = 'services.html';
                     });
                 }
-                goToServicesButton.style.display = 'block'; // Mostrarlo si ya existe
+                goToServicesButton.classList.remove('hidden'); // Mostrarlo si ya existe
+            } else { // Estamos en register.html o alguna otra página que carga este script
+                // No hacemos nada con la UI principal aquí, solo nos aseguramos de que el token es válido
+                // y que el usuario puede navegar a index.html si quiere loguearse.
             }
             
-            // Mostrar/ocultar botones de rol
-            if (clientDashboardButton) clientDashboardButton.style.display = (decodedToken.role === 'client' || decodedToken.role === 'admin') ? 'block' : 'none';
-            if (freelancerProfileButton) freelancerProfileButton.style.display = (decodedToken.role === 'freelancer' || decodedToken.role === 'admin') ? 'block' : 'none';
-            if (adminPanelButton) adminPanelButton.style.display = (decodedToken.role === 'admin') ? 'block' : 'none';
+            // Mostrar/ocultar botones de rol (si existen en la página actual)
+            if (clientDashboardButton) clientDashboardButton.classList.toggle('hidden', !(decodedToken.role === 'client' || decodedToken.role === 'admin'));
+            if (freelancerProfileButton) freelancerProfileButton.classList.toggle('hidden', !(decodedToken.role === 'freelancer' || decodedToken.role === 'admin'));
+            if (adminPanelButton) adminPanelButton.classList.toggle('hidden', !(decodedToken.role === 'admin'));
 
         } else {
-            // Token expirado o inválido
+            // Token expirado o inválido: Limpiar token y mostrar login (si estamos en index.html)
             localStorage.removeItem('accessToken');
-            if (loginSection) loginSection.style.display = 'block';
-            if (welcomeSection) welcomeSection.style.display = 'none';
-            if (loginMessage) showMessage(loginMessage, 'Sesión expirada o token inválido. Por favor, inicie sesión nuevamente.', true);
+            if (loginSection && welcomeSection) { // Estamos en index.html
+                loginSection.classList.remove('hidden'); // Muestra el formulario de login
+                welcomeSection.classList.add('hidden'); // Oculta la bienvenida
+            }
+            // Si estamos en register.html, simplemente el token se borra y la página de registro permanece visible.
         }
     } else {
-        // No hay token
-        if (loginSection) loginSection.style.display = 'block';
-        if (welcomeSection) welcomeSection.style.display = 'none';
+        // No hay token: Mostrar sección de login (si estamos en index.html)
+        if (loginSection && welcomeSection) { // Estamos en index.html
+            loginSection.classList.remove('hidden'); // Muestra el formulario de login
+            welcomeSection.classList.add('hidden'); // Oculta la bienvenida
+        }
+        // Si estamos en register.html, la página de registro permanece visible.
     }
 }
 
@@ -108,7 +132,7 @@ function updateUIForAuthStatus() {
 if (loginForm) {
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        if (loginMessage) loginMessage.style.display = 'none';
+        if (loginMessage) loginMessage.classList.add('hidden');
 
         const username = loginEmailInput.value;
         const password = loginPasswordInput.value;
@@ -146,7 +170,9 @@ if (loginForm) {
 if (logoutButton) {
     logoutButton.addEventListener('click', () => {
         localStorage.removeItem('accessToken');
-        updateUIForAuthStatus(); // Actualizar la UI después de cerrar sesión
+        // Después de cerrar sesión, si estamos en index.html, actualizamos la UI.
+        // Si estamos en services.html, el checkAuthAndRole de services.js nos redirigirá a landing.html.
+        updateUIForAuthStatus(); 
         if (loginMessage) showMessage(loginMessage, 'Sesión cerrada exitosamente.', false);
     });
 }
@@ -169,7 +195,7 @@ if (goToLoginButton) {
 
 // --- Funciones para probar rutas protegidas por rol ---
 async function testProtectedRoute(endpoint, messageElement) {
-    if (messageElement) messageElement.style.display = 'none';
+    if (messageElement) messageElement.classList.add('hidden');
     const token = localStorage.getItem('accessToken');
     if (!token) {
         if (messageElement) showMessage(messageElement, 'No autenticado. Por favor, inicie sesión.', true);
@@ -209,7 +235,13 @@ if (adminPanelButton) adminPanelButton.addEventListener('click', () => testProte
 
 
 // Ejecutar al cargar la página
-document.addEventListener('DOMContentLoaded', updateUIForAuthStatus);
+document.addEventListener('DOMContentLoaded', () => {
+    // Solo ejecutar updateUIForAuthStatus si estamos en index.html
+    // La página de registro no necesita esta lógica para su UI principal.
+    if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+        updateUIForAuthStatus();
+    }
+});
 
 // Lógica de registro (Solo si estamos en register.html)
 const registerForm = document.getElementById('registerForm');
@@ -222,8 +254,8 @@ const registerErrorMessage = document.getElementById('registerErrorMessage');
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (registerMessage) registerMessage.style.display = 'none';
-        if (registerErrorMessage) registerErrorMessage.style.display = 'none';
+        if (registerMessage) registerMessage.classList.add('hidden');
+        if (registerErrorMessage) registerErrorMessage.classList.add('hidden');
 
         const email = registerEmailInput.value;
         const password = registerPasswordInput.value;

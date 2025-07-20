@@ -2,7 +2,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status, Header, Query
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, func # <--- ASEGÚRATE DE QUE 'func' ESTÁ AQUÍ
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
 from pydantic import BaseModel
@@ -70,6 +70,11 @@ class UserInToken(BaseModel):
     email: str
     role: str
     is_active: bool = True # Asumiendo que siempre está activo si el token es válido
+
+# NUEVO ESQUEMA: Para la respuesta del endpoint de landing page <--- ESTO DEBE ESTAR
+class CategoryWithServices(BaseModel):
+    category: str
+    sample_services: List[Service] = [] # Una lista de servicios de ejemplo para esa categoría
 
 # --- Database Configuration ---
 engine = create_engine(DATABASE_URL)
@@ -157,7 +162,6 @@ async def create_service(
     db.refresh(db_service)
     return db_service
 
-# MODIFICADO: Ahora puede filtrar por freelancer_id
 @app.get("/services/", response_model=List[Service])
 async def read_services(
     freelancer_id: Optional[int] = Query(None, description="Filtrar servicios por ID de freelancer"),
@@ -171,14 +175,11 @@ async def read_services(
     services = query.offset(skip).limit(limit).all()
     return services
 
-# NUEVO ENDPOINT: Obtener los servicios del freelancer autenticado
 @app.get("/services/my/", response_model=List[Service])
 async def read_my_services(
     current_freelancer: UserInToken = Depends(get_current_freelancer),
     db: Session = Depends(get_db)
 ):
-    # Reutilizamos la lógica de read_services para filtrar por el ID del freelancer actual
-    # ¡IMPORTANTE: Añadir 'await' aquí!
     return await read_services(freelancer_id=current_freelancer.id, db=db)
 
 
@@ -186,7 +187,7 @@ async def read_my_services(
 async def read_service(service_id: int, db: Session = Depends(get_db)):
     service = db.query(DBService).filter(DBService.id == service_id).first()
     if service is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Servicio no encontrado")
     return service
 
 @app.put("/services/{service_id}", response_model=Service)
@@ -198,7 +199,7 @@ async def update_service(
 ):
     service = db.query(DBService).filter(DBService.id == service_id).first()
     if service is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Servicio no encontrado")
 
     if service.freelancer_id != current_user.id and current_user.role != "admin":
         raise HTTPException(
@@ -222,7 +223,7 @@ async def delete_service(
 ):
     service = db.query(DBService).filter(DBService.id == service_id).first()
     if service is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Servicio no encontrado")
 
     if service.freelancer_id != current_user.id and current_user.role != "admin":
         raise HTTPException(
@@ -233,3 +234,19 @@ async def delete_service(
     db.delete(service)
     db.commit()
     return {"message": "Service deleted successfully"}
+
+# NUEVO ENDPOINT: Obtener categorías con servicios de ejemplo para la landing page <--- ESTO DEBE ESTAR
+@app.get("/landing-categories/", response_model=List[CategoryWithServices])
+async def get_landing_categories(db: Session = Depends(get_db)):
+    # Obtener todas las categorías únicas que tienen servicios
+    categories_with_services = db.query(DBService.category).distinct().all()
+    
+    result = []
+    for category_tuple in categories_with_services:
+        category_name = category_tuple[0]
+        # Obtener hasta 3 servicios de ejemplo para cada categoría
+        # Ordenar por ID descendente para obtener los más recientes o simplemente un orden consistente
+        sample_services = db.query(DBService).filter(DBService.category == category_name).order_by(DBService.id.desc()).limit(3).all()
+        result.append(CategoryWithServices(category=category_name, sample_services=sample_services))
+    
+    return result

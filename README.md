@@ -1,7 +1,8 @@
+
 # 🔐 RedFreelance - Microservicio de Autenticación
 
-¡Bienvenido al microservicio de autenticación (`auth-service`) de la plataforma **RedFreelance**!  
-Este servicio gestiona el **registro**, **inicio de sesión** y **autorización** de usuarios mediante **JWT (JSON Web Tokens)**. Es el núcleo de seguridad de nuestro ecosistema de microservicios.
+Bienvenido al **microservicio de autenticación** (`auth-service`) de la plataforma **RedFreelance**.  
+Este servicio gestiona el **registro, inicio de sesión y autorización de usuarios** mediante **JWT**. Es el núcleo de seguridad de nuestro ecosistema de microservicios.
 
 ---
 
@@ -9,161 +10,161 @@ Este servicio gestiona el **registro**, **inicio de sesión** y **autorización*
 
 - ✅ Funcionalidades principales completadas  
 - ✅ Autorización integrada en `service-service`  
-- ✅ Frontend completamente funcional y estilizado  
-- ✅ Filtro de servicios por freelancer implementado  
-- ✅ CORS configurado correctamente en ambos microservicios  
+- ✅ Frontend estilizado con Tailwind CSS  
+- ✅ Filtro de servicios por freelancer  
+- ✅ CORS correctamente configurado  
+- ✅ Página de bienvenida (`landing.html`)  
+- ✅ Interfaz dinámica con animaciones  
+- ✅ Navbar global con enlace a landing  
+- ✅ Redirección inteligente (`index.html`, `script.js`)
 
 ---
 
 ## ⚙️ Infraestructura
 
-- `Dockerfile`: Construcción de imagen para FastAPI  
-- `docker-compose.yml`: Orquestación de servicios con PostgreSQL  
-- Hot Reload: Desarrollo ágil y en tiempo real  
+- `Dockerfile`: Imagen para FastAPI  
+- `docker-compose.yml`: Orquestación con PostgreSQL  
+- Hot Reload para desarrollo ágil  
 
 ---
 
 ## 👤 Gestión de Usuarios (`auth-service`)
 
-| Endpoint   | Método | Descripción |
-|------------|--------|-------------|
-| `/register` | POST   | Registro con contraseña hasheada y asignación de rol |
-| `/token`    | POST   | Inicio de sesión y generación de JWT |
-| `/me/`      | GET    | Obtener datos del usuario autenticado |
+| Endpoint | Método | Descripción |
+|---------|--------|-------------|
+| `/register` | POST | Registro con contraseña hasheada y rol |
+| `/token` | POST | Login y generación de JWT |
+| `/me/` | GET | Datos del usuario autenticado |
 
 ---
 
 ## 🔐 Autorización Basada en Roles
 
-Se implementa middleware `get_current_active_user_by_role`, que controla acceso a rutas según el rol:
+Middleware: `get_current_active_user_by_role`
 
-| Ruta                | Rol Requerido | Descripción                |
-|---------------------|----------------|----------------------------|
-| `/client-dashboard/`   | client         | Acceso para clientes        |
-| `/freelancer-profile/` | freelancer     | Acceso para freelancers     |
-| `/admin-panel/`         | admin          | Panel exclusivo de admins   |
+| Ruta | Rol Requerido | Descripción |
+|------|---------------|-------------|
+| `/client-dashboard/` | `client` | Acceso para clientes |
+| `/freelancer-profile/` | `freelancer` | Acceso para freelancers |
+| `/admin-panel/` | `admin` | Panel exclusivo de admins |
 
 ---
 
 ## 💼 Gestión de Servicios (`service-service`)
 
-| Endpoint              | Método | Acceso                   | Descripción |
-|------------------------|--------|---------------------------|-------------|
-| `/services/`           | POST   | Freelancers / Admin       | Crear nuevo servicio |
-| `/services/`           | GET    | Público                   | Listar todos los servicios |
-| `/services/my/`        | GET    | Freelancers / Admin       | Ver servicios del usuario |
-| `/services/{id}`       | GET    | Público                   | Ver detalle de servicio |
-| `/services/{id}`       | PUT    | Propietario / Admin       | Editar servicio existente |
-| `/services/{id}`       | DELETE | Propietario / Admin       | Eliminar servicio |
+| Endpoint | Método | Acceso | Descripción |
+|----------|--------|--------|-------------|
+| `/services/` | POST | Freelancer/Admin | Crear servicio |
+| `/services/` | GET | Público | Listar servicios |
+| `/services/my/` | GET | Freelancer/Admin | Servicios del usuario |
+| `/services/{id}` | GET | Público | Detalle de servicio |
+| `/services/{id}` | PUT | Propietario/Admin | Editar servicio |
+| `/services/{id}` | DELETE | Propietario/Admin | Eliminar servicio |
+| `/landing-categories/` | GET | Público | Categorías con servicios de ejemplo |
 
 ---
 
 ## 🚀 Frontend
 
-Interfaz de usuario construida con **HTML**, **CSS** y **JavaScript puro**, diseñada para consumir los microservicios.
+Frontend construido con **HTML**, **JavaScript** y **Tailwind CSS**.
 
 ### 🧱 Estructura
 
-- `css/`:  
-  - `base.css`: Estilos globales  
-  - `auth.css`: Estilos para autenticación  
-  - `services.css`: Estilos para gestión de servicios  
-- `js/`:  
-  - `script.js`: Lógica de login y navegación  
-  - `services.js`: CRUD de servicios y filtrado  
-- Páginas:  
-  - `index.html`: Página principal y login  
-  - `register.html`: Registro de nuevos usuarios  
-  - `services.html`: Gestión y visualización de servicios  
+- **`js/`**
+  - `script.js`: Lógica de login/redirección
+  - `services.js`: CRUD y filtros de servicios
+  - `landing.js`: Carga dinámica para landing
 
-### ✨ Características
+- **Páginas HTML**
+  - `landing.html`: Página de bienvenida
+  - `index.html`: Login/Inicio de sesión
+  - `register.html`: Registro
+  - `services.html`: Gestión de servicios
 
-- Manejo completo de tokens JWT y errores
-- Alternancia entre "Mis Servicios" y "Todos los Servicios"
-- Estilo moderno con tema oscuro
+### ✨ Características Destacadas
+
+- Manejo completo de tokens JWT y errores  
+- Estilo moderno y responsive  
+- Navbar fijo  
+- Alternancia entre "Mis Servicios" y "Todos los Servicios"  
+- Landing con "Top Freelancers" por categoría  
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-| Tecnología        | Propósito                           |
-|-------------------|-------------------------------------|
-| Python 3.9        | Backend principal                   |
-| FastAPI           | Framework web                       |
-| PostgreSQL        | Base de datos                       |
-| psycopg2-binary   | Conector PostgreSQL para Python     |
-| JWT               | Autenticación con tokens            |
-| bcrypt / passlib  | Hasheo de contraseñas               |
-| Docker            | Contenerización                     |
-| Git               | Control de versiones                |
-| aiosmtplib        | Envío de correos (verificación)     |
-| HTML/CSS/JS       | Interfaz de usuario                 |
+| Tecnología | Propósito |
+|------------|-----------|
+| Python 3.9 | Backend |
+| FastAPI | API REST |
+| PostgreSQL | Base de datos |
+| `psycopg2-binary` | Conector PostgreSQL |
+| JWT | Autenticación |
+| `bcrypt`, `passlib` | Hasheo |
+| Docker | Contenerización |
+| Git | Control de versiones |
+| `aiosmtplib` | Envío de correos |
+| HTML, JS | Interfaz de usuario |
+| Tailwind CSS | Estilos CSS |
 
 ---
 
 ## 💻 Ejecución del Proyecto
 
-### 1. Clonar el repositorio
+1. **Clonar repositorio**
+   ```bash
+   git clone https://github.com/tuusuario/RedFreelance.git
+   cd RedFreelance
+   ```
 
-```bash
-git clone https://github.com/tuusuario/RedFreelance.git
-cd RedFreelance
-```
+2. **Configurar variables de entorno**
 
-### 2. Configurar variables de entorno
+   - `auth-service/.env`  
+     ```
+     SMTP_SERVER=smtp.ejemplo.com
+     SMTP_PORT=587
+     SMTP_USERNAME=usuario
+     SMTP_PASSWORD=clave
+     SENDER_EMAIL=noreply@redfreelance.com
+     VERIFICATION_TOKEN_EXPIRE_HOURS=24
+     DATABASE_URL=postgresql+psycopg2://user:password@db:5432/redfreelance_db
+     SECRET_KEY=tu_clave_secreta
+     ```
 
-#### `auth-service/.env`
+   - `service-service/.env`  
+     ```
+     DATABASE_URL=postgresql+psycopg2://user:password@db:5432/redfreelance_db
+     SECRET_KEY=tu_clave_secreta
+     ALGORITHM=HS256
+     ACCESS_TOKEN_EXPIRE_MINUTES=30
+     ```
 
-```env
-SMTP_SERVER=smtp.ejemplo.com
-SMTP_PORT=587
-SMTP_USERNAME=usuario
-SMTP_PASSWORD=clave
-SENDER_EMAIL=noreply@redfreelance.com
-VERIFICATION_TOKEN_EXPIRE_HOURS=24
+3. **Levantar servicios backend**
+   ```bash
+   docker-compose up --build
+   ```
 
-DATABASE_URL="postgresql+psycopg2://user:password@db:5432/redfreelance_db"
-SECRET_KEY="tu_clave_secreta"
-```
+   - Auth-Service: [http://localhost:8000](http://localhost:8000)  
+   - Service-Service: [http://localhost:8001](http://localhost:8001)
 
-#### `service-service/.env`
+4. **Levantar frontend**
+   ```bash
+   cd frontend
+   python -m http.server 3000
+   ```
 
-```env
-DATABASE_URL="postgresql+psycopg2://user:password@db:5432/redfreelance_db"
-SECRET_KEY="tu_clave_secreta"
-ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-```
-
-### 3. Levantar los servicios de backend
-
-```bash
-docker-compose up --build
-```
-
-- 🔗 Auth-Service: http://localhost:8000  
-- 🔗 Service-Service: http://localhost:8001
-
-### 4. Levantar el frontend
-
-```bash
-cd frontend
-python -m http.server 3000
-```
-
-- 🌐 Frontend: http://localhost:3000
+   - Frontend: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🧪 Pruebas (Postman o similar)
+## 🧪 Pruebas con Postman
 
-### 📝 Registro
+### Registro
 
-```
+```http
 POST http://localhost:8000/register
 Content-Type: application/json
 ```
-
 ```json
 {
   "email": "ejemplo@correo.com",
@@ -172,45 +173,43 @@ Content-Type: application/json
 }
 ```
 
-### 🔐 Inicio de sesión
+### Login
 
-```
+```http
 POST http://localhost:8000/token
 Content-Type: application/x-www-form-urlencoded
 ```
-
 ```
 username=ejemplo@correo.com
 password=contraseña_segura
 ```
 
-### 🙋 Obtener usuario actual
+### Obtener usuario actual
 
-```
+```http
 GET http://localhost:8000/me/
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
-### 🧩 Pruebas de roles
+### Pruebas de Roles
 
-| Ruta                | Rol       | Método | Resultado Esperado |
-|---------------------|-----------|--------|---------------------|
-| /client-dashboard/  | client    | GET    | 200 OK / 403        |
-| /freelancer-profile/| freelancer| GET    | 200 OK / 403        |
-| /admin-panel/       | admin     | GET    | 200 OK / 403        |
+| Ruta | Rol | Método | Esperado |
+|------|-----|--------|----------|
+| `/client-dashboard/` | `client` | GET | 200 / 403 |
+| `/freelancer-profile/` | `freelancer` | GET | 200 / 403 |
+| `/admin-panel/` | `admin` | GET | 200 / 403 |
 
 ---
 
-## 🛠️ Pruebas de Servicios (`service-service`)
+## 🔧 Pruebas de Servicios (`service-service`)
 
-### ➕ Crear servicio
+### Crear Servicio
 
 ```http
 POST http://localhost:8001/services/
 Authorization: Bearer <ACCESS_TOKEN>
 Content-Type: application/json
 ```
-
 ```json
 {
   "title": "Desarrollo Web con React",
@@ -220,32 +219,44 @@ Content-Type: application/json
 }
 ```
 
-### 📄 Otros Endpoints
+### Otros Endpoints
 
-- **Listar todos**: `GET /services/`
-- **Listar propios**: `GET /services/my/` (con token)
-- **Obtener por ID**: `GET /services/{id}`
-- **Actualizar**: `PUT /services/{id}`
-- **Eliminar**: `DELETE /services/{id}`
+- Listar todos: `GET /services/`  
+- Listar propios: `GET /services/my/`  
+- Detalle por ID: `GET /services/{id}`  
+- Editar servicio: `PUT /services/{id}`  
+- Eliminar servicio: `DELETE /services/{id}`  
+- Categorías landing: `GET /landing-categories/`
 
 ---
 
 ## 📌 Próximos Pasos
 
-- [ ] Búsqueda y filtrado en frontend (título, categoría, precio)  
-- [ ] Microservicio `order-service`, `chat-service`, etc.  
-- [ ] Mejorar gestión de errores y UX en frontend  
+### Fase 1: Backend
+
+- Crear tabla `categories` y modelo `DBCategory`
+- Validar categorías en creación/edición de servicios
+- Endpoints:
+  - `POST /categories/` (Admin)
+  - `GET /categories/`
+  - `DELETE /categories/{id}`
+
+### Fase 2: Frontend
+
+- Reemplazar `input` por `<select>` para categorías
+- Obtener categorías dinámicamente
+- Filtrar servicios por categoría desde `landing.html`
 
 ---
 
 ## 🤝 Contribuciones
 
-¡Pull requests y sugerencias son siempre bienvenidas!  
-Este proyecto está en constante evolución y abierto a la colaboración de la comunidad.
+¡Pull requests y sugerencias son **bienvenidas**!  
+Este proyecto está en constante evolución y abierto a la comunidad.
 
 ---
 
 ## 📄 Licencia
 
 Distribuido bajo la **Licencia MIT**.  
-Consulta el archivo `LICENSE` para más detalles.
+Consulta el archivo [LICENSE](./LICENSE) para más información.

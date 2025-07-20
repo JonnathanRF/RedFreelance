@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedFreelance - Conecta con Talentos</title>
+    <!-- Incluir Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden; /* Evita el scroll horizontal */
+        }
+        /* Fondo de video o imagen */
+        .hero-video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        /* Animación para las tarjetas de categoría */
+        .category-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .category-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        /* Animación de carga para el contenido */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col items-center">
+
+    <!-- Navbar -->
+    <nav class="w-full bg-gray-950 p-4 flex justify-between items-center shadow-lg fixed top-0 z-50">
+        <a href="landing.html" class="text-teal-400 text-2xl font-bold hover:text-teal-300 transition-colors duration-200">
+            RedFreelance
+        </a>
+        <!-- Puedes añadir más elementos de navegación aquí si es necesario -->
+    </nav>
+
+    <!-- Hero Section con Video/Imagen de Fondo -->
+    <div class="relative w-full h-screen flex items-center justify-center overflow-hidden pt-16"> <!-- Añadido pt-16 para compensar el navbar fijo -->
+        <!-- Puedes usar un video de fondo o una imagen, aquí un placeholder de imagen -->
+        <!-- Para un video, usarías:
+        <video autoplay muted loop class="hero-video-background">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-his-computer-4389-large.mp4" type="video/mp4">
+            Tu navegador no soporta el tag de video.
+        </video>
+        -->
+        <img src="https://placehold.co/1920x1080/1a1c20/e0e0e0?text=Fondo+Din%C3%A1mico+RedFreelance" alt="Fondo dinámico" class="hero-video-background">
+
+        <!-- Overlay para oscurecer el fondo y mejorar la legibilidad del texto -->
+        <div class="absolute inset-0 bg-black opacity-70 z-0"></div>
+
+        <!-- Contenido principal del Hero -->
+        <div class="relative z-10 text-center px-4 animate-fadeIn">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-teal-400 leading-tight mb-4 drop-shadow-lg">
+                RedFreelance
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-200 mb-8 max-w-2xl mx-auto">
+                Conecta con los mejores talentos freelance para tus proyectos o encuentra oportunidades.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <a href="index.html" class="bg-teal-500 text-gray-900 py-3 px-8 rounded-full font-bold text-lg hover:bg-teal-600 transition-all duration-300 ease-in-out shadow-lg transform hover:scale-105 active:scale-95">
+                    ¡Empieza Ahora!
+                </a>
+                <a href="#explore-categories" class="bg-gray-700 text-gray-200 py-3 px-8 rounded-full font-bold text-lg hover:bg-gray-600 transition-all duration-300 ease-in-out shadow-lg transform hover:scale-105 active:scale-95">
+                    Explorar Servicios
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Categorías y Top Freelancers -->
+    <section id="explore-categories" class="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-800 text-gray-100">
+        <div class="max-w-6xl mx-auto text-center">
+            <h2 class="text-4xl font-bold text-teal-400 mb-12">Explora Nuestros Servicios por Categoría</h2>
+            
+            <div id="categoriesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Las tarjetas de categoría se cargarán aquí dinámicamente -->
+                <p id="loadingCategories" class="text-gray-400 text-lg col-span-full">Cargando categorías...</p>
+                <p id="noCategories" class="text-gray-400 text-lg col-span-full hidden">No hay categorías disponibles en este momento.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Testimonios o Call to Action adicional -->
+    <section class="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gray-900 text-gray-200 text-center">
+        <h2 class="text-4xl font-bold text-teal-400 mb-8">¿Listo para encontrar el talento perfecto?</h2>
+        <p class="text-xl text-gray-300 mb-12 max-w-3xl mx-auto">
+            Únete a RedFreelance y transforma tus ideas en realidad con profesionales de primer nivel.
+        </p>
+        <a href="register.html" class="bg-purple-600 text-white py-4 px-10 rounded-full font-bold text-xl hover:bg-purple-700 transition-all duration-300 ease-in-out shadow-xl transform hover:scale-105 active:scale-95">
+            ¡Regístrate Gratis!
+        </a>
+    </section>
+
+    <footer class="w-full bg-gray-950 text-gray-400 py-8 text-center text-sm">
+        <p>&copy; 2025 RedFreelance. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="js/landing.js"></script> <!-- Vinculamos el JS de la landing page aquí -->
+</body>
+</html>
