@@ -7,17 +7,16 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/services.css">
 </head>
-<body>
+<body id="services-page"> <!-- ¡IMPORTANTE: ID AÑADIDO AQUÍ! -->
     <div class="container">
-        <h1>RedFreelance</h1>
-        <h2>Gestión de Servicios</h2>
+        <h1>RedFreelance - Gestión de Servicios</h1>
         <p>Bienvenido/a <span id="userEmailDisplay"></span>! (Rol: <span id="userRoleDisplay"></span>)</p>
         <button id="backToAuthButton">Volver a Autenticación</button>
         <hr>
 
         <!-- Sección para crear un nuevo servicio (solo visible para freelancers) -->
         <div id="createServiceSection" style="display: none;">
-            <h3>Publicar Nuevo Servicio</h3>
+            <h2>Publicar Nuevo Servicio</h2>
             <form id="createServiceForm">
                 <label for="serviceTitle">Título:</label>
                 <input type="text" id="serviceTitle" required>
@@ -33,24 +32,24 @@
 
                 <button type="submit">Crear Servicio</button>
             </form>
-            <p id="createServiceMessage" class="success-message" style="display: none;"></p>
-            <p id="createServiceErrorMessage" class="error-message" style="display: none;"></p>
+            <p id="createServiceMessage" class="success-message"></p>
+            <p id="createServiceErrorMessage" class="error-message"></p>
             <hr>
         </div>
 
         <!-- Sección para listar servicios -->
         <div id="listServicesSection">
-            <h3 id="servicesListTitle">Servicios Disponibles</h3> <!-- ¡Añadido ID aquí! -->
+            <h3 id="servicesListTitle">Servicios Disponibles</h3> <!-- Título de la lista de servicios -->
             <div id="servicesList" class="services-grid">
                 <!-- Los servicios se cargarán aquí dinámicamente -->
                 <p id="noServicesMessage" style="display: none;">No hay servicios disponibles.</p>
             </div>
-            <p id="listServicesMessage" class="error-message" style="display: none;"></p>
+            <p id="listServicesMessage" class="error-message"></p>
         </div>
 
         <!-- Sección para editar/eliminar un servicio (se mostrará al seleccionar uno) -->
         <div id="manageServiceSection" style="display: none;">
-            <h3>Gestionar Servicio <span id="manageServiceId"></span></h3>
+            <h2>Gestionar Servicio <span id="manageServiceId"></span></h2>
             <form id="updateServiceForm">
                 <label for="updateServiceTitle">Título:</label>
                 <input type="text" id="updateServiceTitle" required>
@@ -68,8 +67,8 @@
                 <button type="button" id="deleteServiceButton" class="delete-button">Eliminar Servicio</button>
                 <button type="button" id="cancelManageButton" class="cancel-button">Cancelar</button>
             </form>
-            <p id="manageServiceMessage" class="success-message" style="display: none;"></p>
-            <p id="manageServiceErrorMessage" class="error-message" style="display: none;"></p>
+            <p id="manageServiceMessage" class="success-message"></p>
+            <p id="manageServiceErrorMessage" class="error-message"></p>
         </div>
 
     </div>

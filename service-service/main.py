@@ -2,7 +2,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status, Header, Query
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, func # <--- ASEGÚRATE DE QUE 'func' ESTÁ AQUÍ
+from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
 from pydantic import BaseModel
@@ -28,6 +28,14 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://auth-service:8000/token")
 # --- Database Models (SQLAlchemy) ---
 Base = declarative_base()
 
+class DBCategory(Base):
+    __tablename__ = "categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True, nullable=False)
+
+    services = relationship("DBService", back_populates="category_rel", primaryjoin="DBCategory.name == DBService.category")
+
 class DBService(Base):
     __tablename__ = "services"
 
@@ -35,8 +43,10 @@ class DBService(Base):
     title = Column(String, index=True)
     description = Column(String)
     price = Column(Float)
-    category = Column(String, index=True)
+    category = Column(String, ForeignKey('categories.name'), index=True)
     freelancer_id = Column(Integer, index=True)
+
+    category_rel = relationship("DBCategory", back_populates="services", primaryjoin="DBCategory.name == DBService.category")
 
 # --- Pydantic Schemas (for input/output validation) ---
 class ServiceBase(BaseModel):
@@ -60,6 +70,17 @@ class Service(ServiceBase):
     class Config:
         from_attributes = True
 
+class CategoryBase(BaseModel):
+    name: str
+
+class CategoryCreate(CategoryBase):
+    pass
+
+class Category(CategoryBase):
+    id: int
+    class Config:
+        from_attributes = True
+
 class TokenData(BaseModel):
     email: Optional[str] = None
     role: Optional[str] = None
@@ -69,12 +90,12 @@ class UserInToken(BaseModel):
     id: int
     email: str
     role: str
-    is_active: bool = True # Asumiendo que siempre está activo si el token es válido
+    is_active: bool = True
 
-# NUEVO ESQUEMA: Para la respuesta del endpoint de landing page <--- ESTO DEBE ESTAR
+# Schema for landing page response
 class CategoryWithServices(BaseModel):
     category: str
-    sample_services: List[Service] = [] # Una lista de servicios de ejemplo para esa categoría
+    sample_services: List[Service] = []
 
 # --- Database Configuration ---
 engine = create_engine(DATABASE_URL)
@@ -140,15 +161,15 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], # Permite todos los métodos (GET, POST, PUT, DELETE, OPTIONS)
-    allow_headers=["*"], # Permite todos los encabezados
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/")
 async def read_root():
     return {"message": "Welcome to the Service Microservice!"}
 
-# --- Endpoints ---
+# --- Endpoints for Services ---
 
 @app.post("/services/", response_model=Service, status_code=status.HTTP_201_CREATED)
 async def create_service(
@@ -156,6 +177,13 @@ async def create_service(
     current_freelancer: UserInToken = Depends(get_current_freelancer),
     db: Session = Depends(get_db)
 ):
+    existing_category = db.query(DBCategory).filter(DBCategory.name == service.category).first()
+    if not existing_category:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Category '{service.category}' does not exist. Please create it first or choose an existing one."
+        )
+
     db_service = DBService(**service.model_dump(), freelancer_id=current_freelancer.id)
     db.add(db_service)
     db.commit()
@@ -165,6 +193,7 @@ async def create_service(
 @app.get("/services/", response_model=List[Service])
 async def read_services(
     freelancer_id: Optional[int] = Query(None, description="Filtrar servicios por ID de freelancer"),
+    category: Optional[str] = Query(None, description="Filtrar servicios por categoría"),
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
@@ -172,6 +201,9 @@ async def read_services(
     query = db.query(DBService)
     if freelancer_id is not None:
         query = query.filter(DBService.freelancer_id == freelancer_id)
+    # CORRECCIÓN: Asegurarse de que 'category' sea un string o None, no un objeto Query
+    if category is not None:
+        query = query.filter(DBService.category == category)
     services = query.offset(skip).limit(limit).all()
     return services
 
@@ -180,7 +212,10 @@ async def read_my_services(
     current_freelancer: UserInToken = Depends(get_current_freelancer),
     db: Session = Depends(get_db)
 ):
-    return await read_services(freelancer_id=current_freelancer.id, db=db)
+    # CORRECCIÓN: Asegurarse de que el parámetro 'category' no se pase si no es necesario,
+    # o que se pase como None explícitamente si no hay filtro de categoría.
+    # En este caso, read_my_services solo filtra por freelancer_id.
+    return await read_services(freelancer_id=current_freelancer.id, category=None, db=db)
 
 
 @app.get("/services/{service_id}", response_model=Service)
@@ -206,6 +241,14 @@ async def update_service(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to update this service"
         )
+    
+    if service_update.category is not None and service_update.category != service.category:
+        existing_category = db.query(DBCategory).filter(DBCategory.name == service_update.category).first()
+        if not existing_category:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Category '{service_update.category}' does not exist. Please choose an existing one."
+            )
 
     for key, value in service_update.model_dump(exclude_unset=True).items():
         setattr(service, key, value)
@@ -235,17 +278,55 @@ async def delete_service(
     db.commit()
     return {"message": "Service deleted successfully"}
 
-# NUEVO ENDPOINT: Obtener categorías con servicios de ejemplo para la landing page <--- ESTO DEBE ESTAR
+# --- Endpoints for Category Management (Admin Only) ---
+
+@app.post("/categories/", response_model=Category, status_code=status.HTTP_201_CREATED)
+async def create_category(
+    category: CategoryCreate,
+    current_admin: UserInToken = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    existing_category = db.query(DBCategory).filter(DBCategory.name == category.name).first()
+    if existing_category:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Category with this name already exists")
+    
+    db_category = DBCategory(name=category.name)
+    db.add(db_category)
+    db.commit()
+    db.refresh(db_category)
+    return db_category
+
+@app.get("/categories/", response_model=List[Category])
+async def read_categories(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    categories = db.query(DBCategory).offset(skip).limit(limit).all()
+    return categories
+
+@app.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_category(
+    category_id: int,
+    current_admin: UserInToken = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    category = db.query(DBCategory).filter(DBCategory.id == category_id).first()
+    if category is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+    
+    db.delete(category)
+    db.commit()
+    return {"message": "Category deleted successfully"}
+
+# --- Modified Endpoint: Get categories with sample services for landing page ---
 @app.get("/landing-categories/", response_model=List[CategoryWithServices])
 async def get_landing_categories(db: Session = Depends(get_db)):
-    # Obtener todas las categorías únicas que tienen servicios
-    categories_with_services = db.query(DBService.category).distinct().all()
+    all_categories = db.query(DBCategory).all()
     
     result = []
-    for category_tuple in categories_with_services:
-        category_name = category_tuple[0]
-        # Obtener hasta 3 servicios de ejemplo para cada categoría
-        # Ordenar por ID descendente para obtener los más recientes o simplemente un orden consistente
+    for db_category in all_categories:
+        category_name = db_category.name
         sample_services = db.query(DBService).filter(DBService.category == category_name).order_by(DBService.id.desc()).limit(3).all()
         result.append(CategoryWithServices(category=category_name, sample_services=sample_services))
     

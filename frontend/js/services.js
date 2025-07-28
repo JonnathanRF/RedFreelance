@@ -19,6 +19,7 @@ const createServiceErrorMessage = document.getElementById('createServiceErrorMes
 
 const servicesList = document.getElementById('servicesList');
 const noServicesMessage = document.getElementById('noServicesMessage');
+const listServicesSection = document.getElementById('listServicesSection');
 const listServicesMessage = document.getElementById('listServicesMessage');
 
 const manageServiceSection = document.getElementById('manageServiceSection');
@@ -26,7 +27,7 @@ const manageServiceIdSpan = document.getElementById('manageServiceId');
 const updateServiceForm = document.getElementById('updateServiceForm');
 const updateServiceTitleInput = document.getElementById('updateServiceTitle');
 const updateServiceDescriptionInput = document.getElementById('updateServiceDescription');
-const updateServicePriceInput = document.getElementById('updateServicePrice'); // Corregido: antes era 'document ='
+const updateServicePriceInput = document.getElementById('updateServicePrice');
 const updateServiceCategoryInput = document.getElementById('updateServiceCategory');
 const updateServiceButton = document.getElementById('updateServiceButton');
 const deleteServiceButton = document.getElementById('deleteServiceButton');
@@ -35,13 +36,13 @@ const manageServiceMessage = document.getElementById('manageServiceMessage');
 const manageServiceErrorMessage = document.getElementById('manageServiceErrorMessage');
 
 // NUEVOS ELEMENTOS PARA FILTRADO
-const servicesListTitle = document.getElementById('servicesListTitle'); // Nuevo título para la lista
-const toggleMyServicesButton = document.createElement('button'); // Botón para alternar
+const servicesListTitle = document.getElementById('servicesListTitle');
+const toggleMyServicesButton = document.createElement('button');
 toggleMyServicesButton.id = 'toggleMyServicesButton';
 toggleMyServicesButton.textContent = 'Ver Mis Servicios';
 toggleMyServicesButton.style.marginTop = '10px';
 toggleMyServicesButton.style.marginBottom = '20px';
-toggleMyServicesButton.style.backgroundColor = '#007bff'; // Estilo para el botón
+toggleMyServicesButton.style.backgroundColor = '#007bff';
 toggleMyServicesButton.style.color = 'white';
 toggleMyServicesButton.style.padding = '10px 15px';
 toggleMyServicesButton.style.border = 'none';
@@ -51,7 +52,6 @@ toggleMyServicesButton.style.transition = 'background-color 0.2s ease';
 toggleMyServicesButton.onmouseover = () => toggleMyServicesButton.style.backgroundColor = '#0056b3';
 toggleMyServicesButton.onmouseout = () => toggleMyServicesButton.style.backgroundColor = '#007bff';
 
-// Añadir el botón al DOM (por ejemplo, debajo del hr después del botón "Volver a Autenticación")
 const hrElement = document.querySelector('.container hr');
 if (hrElement && hrElement.nextElementSibling) {
     hrElement.parentNode.insertBefore(toggleMyServicesButton, hrElement.nextElementSibling);
@@ -60,8 +60,8 @@ if (hrElement && hrElement.nextElementSibling) {
 }
 
 
-let currentServiceId = null; // Para almacenar el ID del servicio que se está gestionando
-let showingMyServices = false; // Estado para saber qué servicios estamos mostrando
+let currentServiceId = null;
+let showingMyServices = false;
 
 // Función para mostrar mensajes temporales
 function showMessage(element, message, isError = false) {
@@ -115,56 +115,68 @@ function checkAuthAndRole() {
         return null;
     }
 
-    if (userEmailDisplay) userEmailDisplay.textContent = decodedToken.sub; // 'sub' es el email
+    if (userEmailDisplay) userEmailDisplay.textContent = decodedToken.sub;
     if (userRoleDisplay) userRoleDisplay.textContent = decodedToken.role;
 
-    // Mostrar/ocultar secciones según el rol
-    if (createServiceSection) {
-        if (decodedToken.role === 'freelancer' || decodedToken.role === 'admin') {
-            createServiceSection.style.display = 'block';
-            if (toggleMyServicesButton) toggleMyServicesButton.style.display = 'block'; // Mostrar el botón de alternar
-        } else {
-            createServiceSection.style.display = 'none';
-            if (toggleMyServicesButton) toggleMyServicesButton.style.display = 'none'; // Ocultar el botón de alternar
-        }
-    }
-    return decodedToken;
+    // Retornar el objeto con los datos del usuario decodificados
+    return {
+        email: decodedToken.sub,
+        role: decodedToken.role,
+        user_id: decodedToken.user_id
+    };
 }
 
-const currentUser = checkAuthAndRole(); // Obtener los datos del usuario al cargar la página
-
-// --- Funciones de Interacción con el Service Service ---
-
-// Función para cargar y mostrar servicios (ahora con lógica de filtrado)
-async function loadServices() {
+// Función para cargar y mostrar servicios (ahora recibe currentUser como argumento)
+async function loadServices(currentUser, filterCategory = null) { // Aceptar currentUser y filterCategory
     if (listServicesMessage) listServicesMessage.style.display = 'none';
     if (servicesList) servicesList.innerHTML = '';
     if (noServicesMessage) noServicesMessage.style.display = 'none';
 
     let url = `${SERVICE_SERVICE_URL}/services/`;
-    if (currentUser && currentUser.role === 'freelancer' && showingMyServices) {
-        url = `${SERVICE_SERVICE_URL}/services/my/`; // Usar el nuevo endpoint
-        if (servicesListTitle) servicesListTitle.textContent = 'Mis Servicios Publicados';
+    let titleText = 'Todos los Servicios Disponibles';
+
+    // Priorizar el filtro de categoría si existe
+    if (filterCategory) {
+        url += `?category=${encodeURIComponent(filterCategory)}`;
+        titleText = `Servicios en: ${decodeURIComponent(filterCategory)}`;
+        if (toggleMyServicesButton) toggleMyServicesButton.style.display = 'none'; // Ocultar si hay filtro de categoría
     } else {
-        if (servicesListTitle) servicesListTitle.textContent = 'Todos los Servicios Disponibles';
+        // Si no hay filtro de categoría, verificar si se deben mostrar "Mis Servicios"
+        if (currentUser && currentUser.role === 'freelancer' && showingMyServices) {
+            url = `${SERVICE_SERVICE_URL}/services/my/`;
+            titleText = 'Mis Servicios Publicados';
+            if (toggleMyServicesButton) toggleMyServicesButton.textContent = 'Ver Todos los Servicios';
+        } else {
+            // Mostrar todos los servicios
+            url = `${SERVICE_SERVICE_URL}/services/`;
+            titleText = 'Todos los Servicios Disponibles';
+            if (toggleMyServicesButton) toggleMyServicesButton.textContent = 'Ver Mis Servicios';
+        }
+        // Mostrar el botón de alternar si el usuario es freelancer o admin y no hay filtro de categoría
+        if (toggleMyServicesButton && (currentUser && (currentUser.role === 'freelancer' || currentUser.role === 'admin'))) {
+            toggleMyServicesButton.style.display = 'block';
+        } else if (toggleMyServicesButton) {
+            toggleMyServicesButton.style.display = 'none';
+        }
     }
 
+    if (servicesListTitle) servicesListTitle.textContent = titleText;
+
     try {
-        const token = getAuthToken(); // Necesario para /services/my/
+        const token = getAuthToken();
         const headers = {
             'Content-Type': 'application/json'
         };
-        // Solo añadir el token si el endpoint lo requiere o si el usuario es freelancer/admin
-        if (token && (url.includes('/services/my/') || currentUser.role === 'freelancer' || currentUser.role === 'admin')) {
+        if (token && (url.includes('/services/my/') || (currentUser && (currentUser.role === 'freelancer' || currentUser.role === 'admin')))) {
              headers['Authorization'] = `Bearer ${token}`;
         }
 
         const response = await fetch(url, { headers: headers });
 
         if (!response.ok) {
-            // Manejo de errores específicos para 401/403 en caso de que el token no sea válido para /services/my/
             if (response.status === 401 || response.status === 403) {
                 alert('No autorizado para ver esta sección. Por favor, inicie sesión como freelancer.');
+                localStorage.removeItem('accessToken');
                 window.location.href = 'index.html';
                 return;
             }
@@ -190,7 +202,7 @@ async function loadServices() {
                     const manageButton = document.createElement('button');
                     manageButton.textContent = 'Gestionar';
                     manageButton.className = 'manage-button';
-                    manageButton.onclick = () => showManageService(service);
+                    manageButton.onclick = () => showManageService(service, currentUser); // Pasar currentUser
                     serviceCard.appendChild(manageButton);
                 }
                 if (servicesList) servicesList.appendChild(serviceCard);
@@ -202,8 +214,8 @@ async function loadServices() {
     }
 }
 
-// Función para mostrar el formulario de gestionar servicio
-function showManageService(service) {
+// Función para mostrar el formulario de gestionar servicio (recibe currentUser)
+function showManageService(service, currentUser) {
     currentServiceId = service.id;
     if (manageServiceIdSpan) manageServiceIdSpan.textContent = service.id;
     if (updateServiceTitleInput) updateServiceTitleInput.value = service.title;
@@ -211,17 +223,14 @@ function showManageService(service) {
     if (updateServicePriceInput) updateServicePriceInput.value = service.price;
     if (updateServiceCategoryInput) updateServiceCategoryInput.value = service.category;
 
-    // Ocultar sección de creación y mostrar la de gestión
     if (createServiceSection) createServiceSection.style.display = 'none';
     if (listServicesSection) listServicesSection.style.display = 'none';
     if (manageServiceSection) manageServiceSection.style.display = 'block';
     
-    // OCULTAR EL BOTÓN "Ver Mis Servicios"
     if (toggleMyServicesButton) {
         toggleMyServicesButton.style.display = 'none';
     }
 
-    // Deshabilitar botones de actualizar/eliminar si no es el propietario ni admin
     if (updateServiceButton && deleteServiceButton) {
         if (currentUser && (currentUser.user_id === service.freelancer_id || currentUser.role === 'admin')) {
             updateServiceButton.disabled = false;
@@ -234,41 +243,40 @@ function showManageService(service) {
     }
 }
 
-// Función para ocultar el formulario de gestionar y volver a la lista
-function hideManageService() {
+// Función para ocultar el formulario de gestionar y volver a la lista (recibe currentUser)
+function hideManageService(currentUser) {
     currentServiceId = null;
     if (manageServiceSection) manageServiceSection.style.display = 'none';
     if (createServiceSection) createServiceSection.style.display = (currentUser && (currentUser.role === 'freelancer' || currentUser.role === 'admin')) ? 'block' : 'none';
     if (listServicesSection) listServicesSection.style.display = 'block';
     
-    // MOSTRAR EL BOTÓN "Ver Mis Servicios" de nuevo (solo si el usuario es freelancer o admin)
     if (toggleMyServicesButton && (currentUser && (currentUser.role === 'freelancer' || currentUser.role === 'admin'))) {
         toggleMyServicesButton.style.display = 'block';
     }
 
-    loadServices(); // Recargar la lista para reflejar cambios
+    loadServices(currentUser); // Pasar currentUser al recargar
 }
 
 // --- Event Listeners ---
 
-// Botón para volver a la página de autenticación
 if (backToAuthButton) {
     backToAuthButton.addEventListener('click', () => {
         window.location.href = 'index.html';
     });
 }
 
-// Botón para alternar entre mis servicios y todos los servicios
 if (toggleMyServicesButton) {
     toggleMyServicesButton.addEventListener('click', () => {
-        showingMyServices = !showingMyServices; // Cambiar el estado
-        toggleMyServicesButton.textContent = showingMyServices ? 'Ver Todos los Servicios' : 'Ver Mis Servicios';
-        loadServices(); // Volver a cargar los servicios con el nuevo filtro
+        showingMyServices = !showingMyServices;
+        // El texto del botón se actualizará en loadServices
+        const currentUser = checkAuthAndRole(); // Obtener el usuario actual para pasarlo
+        if (currentUser) {
+            loadServices(currentUser);
+        }
     });
 }
 
 
-// Formulario de creación de servicio
 if (createServiceForm) {
     createServiceForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -311,8 +319,11 @@ if (createServiceForm) {
 
             const newService = await response.json();
             if (createServiceMessage) showMessage(createServiceMessage, `Servicio "${newService.title}" creado con éxito!`, false);
-            createServiceForm.reset(); // Limpiar formulario
-            loadServices(); // Recargar la lista
+            createServiceForm.reset();
+            const currentUser = checkAuthAndRole(); // Re-obtener currentUser
+            if (currentUser) {
+                loadServices(currentUser); // Pasar currentUser
+            }
         } catch (error) {
             console.error('Error al crear servicio:', error);
             if (createServiceErrorMessage) showMessage(createServiceErrorMessage, `Error al crear servicio: ${error.message}`, true);
@@ -321,7 +332,6 @@ if (createServiceForm) {
 }
 
 
-// Formulario de actualización de servicio
 if (updateServiceForm) {
     updateServiceForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -367,7 +377,10 @@ if (updateServiceForm) {
 
             const updatedService = await response.json();
             if (manageServiceMessage) showMessage(manageServiceMessage, `Servicio "${updatedService.title}" actualizado con éxito!`, false);
-            hideManageService(); // Volver a la lista
+            const currentUser = checkAuthAndRole(); // Re-obtener currentUser
+            if (currentUser) {
+                hideManageService(currentUser); // Pasar currentUser
+            }
         } catch (error) {
             console.error('Error al actualizar servicio:', error);
             if (manageServiceErrorMessage) showMessage(manageServiceErrorMessage, `Error al actualizar servicio: ${error.message}`, true);
@@ -415,7 +428,10 @@ if (deleteServiceButton) {
             }
 
             if (manageServiceMessage) showMessage(manageServiceMessage, 'Servicio eliminado con éxito!', false);
-            hideManageService(); // Volver a la lista
+            const currentUser = checkAuthAndRole(); // Re-obtener currentUser
+            if (currentUser) {
+                hideManageService(currentUser); // Pasar currentUser
+            }
         } catch (error) {
             console.error('Error al eliminar servicio:', error);
             if (manageServiceErrorMessage) showMessage(manageServiceErrorMessage, `Error al eliminar servicio: ${error.message}`, true);
@@ -426,13 +442,21 @@ if (deleteServiceButton) {
 
 // Botón de cancelar gestión
 if (cancelManageButton) {
-    cancelManageButton.addEventListener('click', hideManageService);
+    cancelManageButton.addEventListener('click', () => {
+        const currentUser = checkAuthAndRole(); // Re-obtener currentUser
+        if (currentUser) {
+            hideManageService(currentUser); // Pasar currentUser
+        }
+    });
 }
 
 // Asegurarse de que el usuario esté autenticado y cargar servicios al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
     const user = checkAuthAndRole(); // Esto ya redirige si no hay token o está expirado
     if (user) {
-        loadServices(); // Solo cargar servicios si el usuario está autenticado y su token es válido
+        // Obtener la categoría de la URL si existe (para el filtrado desde la landing page)
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryFilter = urlParams.get('category');
+        loadServices(user, categoryFilter); // Pasar el objeto 'user' y el filtro de categoría
     }
 });
