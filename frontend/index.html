@@ -104,6 +104,30 @@
         </div>
     </div>
 
+    <!-- Estructura para Notificaciones Personalizadas -->
+    <div id="customNotification" class="fixed bottom-4 right-4 bg-gray-900 text-white p-4 rounded-lg shadow-xl hidden z-50 transform translate-y-full opacity-0 transition-all duration-500 ease-out">
+        <div class="flex items-center space-x-3">
+            <span id="notificationIcon" class="text-2xl"></span>
+            <p id="notificationMessage" class="text-lg font-semibold"></p>
+        </div>
+        <button id="closeNotification" class="absolute top-2 right-2 text-gray-400 hover:text-gray-200 focus:outline-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
+
+    <style>
+        /* Clases de animación para mostrar/ocultar */
+        .notification-show {
+            transform: translateY(0) !important;
+            opacity: 1 !important;
+        }
+        .notification-hide {
+            transform: translateY(100%) !important;
+            opacity: 0 !important;
+        }
+    </style>
+
+    <script src="js/notification.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>

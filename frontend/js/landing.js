@@ -47,13 +47,11 @@
                         </button>
                     `;
                     
-                    // --- ESTO ES LO CLAVE: LA REDIRECCIÓN Y NO EL ALERT ---
                     categoryCard.addEventListener('click', () => {
                         window.location.href = `services.html?category=${encodeURIComponent(categoryData.category)}`;
                     });
-                    // También puedes mantener el evento en el botón "Ver más" si quieres un comportamiento dual
                     categoryCard.querySelector('button').addEventListener('click', (event) => {
-                        event.stopPropagation(); // Evita que el clic en el botón active también el clic de la tarjeta
+                        event.stopPropagation();
                         window.location.href = `services.html?category=${encodeURIComponent(categoryData.category)}`;
                     });
 
@@ -63,9 +61,11 @@
             }
         } catch (error) {
             console.error('Error al cargar categorías para la landing page:', error);
+            // Usar showNotification para errores de carga de categorías
+            showNotification(`Error al cargar categorías: ${error.message}`, 'error');
             if (loadingCategories) loadingCategories.classList.add('hidden');
             if (noCategories) noCategories.classList.remove('hidden');
-            if (noCategories) noCategories.textContent = `Error al cargar categorías: ${error.message}`;
+            if (noCategories) noCategories.textContent = `Error al cargar categorías: ${error.message}`; // Mantener el mensaje en el elemento también
         }
     }
 

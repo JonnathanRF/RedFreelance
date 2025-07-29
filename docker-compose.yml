@@ -1,5 +1,5 @@
 # RedFreelance/docker-compose.yml
-version: '3.8'
+# La línea 'version: '3.8'' ha sido eliminada
 
 services:
   # Servicio de Autenticación

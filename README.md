@@ -21,24 +21,28 @@ Este servicio gestiona el **registro, inicio de sesión y autorización de usuar
 - ✅ Filtrado por categoría desde `landing.html`  
 - ✅ Redirección al login si no autenticado  
 - ✅ Corregido `AttributeError` de `bcrypt` en logs  
+- ✅ Navegación fluida entre login y registro  
+- ✅ Notificaciones personalizadas y animadas  
+- ✅ Persistencia de notificaciones tras redirecciones  
+- ✅ Eliminación del warning de `bcrypt` en logs  
 
 ---
 
 ## ⚙️ Infraestructura
 
 - `Dockerfile`: Imagen para FastAPI  
-- `docker-compose.yml`: Orquestación con PostgreSQL  
+- `docker-compose.yml`: Orquestación con PostgreSQL (sin `version:` obsoleto)  
 - 🔁 **Hot Reload** para desarrollo ágil  
 
 ---
 
 ## 👤 Gestión de Usuarios (`auth-service`)
 
-| Endpoint | Método | Descripción |
-|----------|--------|-------------|
-| `/register` | POST | Registro con contraseña hasheada y rol |
-| `/token`    | POST | Login y generación de JWT |
-| `/me/`      | GET  | Datos del usuario autenticado |
+| Endpoint   | Método | Descripción                          |
+|------------|--------|--------------------------------------|
+| `/register`| POST   | Registro con contraseña y rol        |
+| `/token`   | POST   | Login y generación de JWT            |
+| `/me/`     | GET    | Obtener datos del usuario autenticado|
 
 ---
 
@@ -46,28 +50,28 @@ Este servicio gestiona el **registro, inicio de sesión y autorización de usuar
 
 Middleware: `get_current_active_user_by_role`
 
-| Ruta | Rol Requerido | Descripción |
-|------|---------------|-------------|
-| `/client-dashboard/` | `client` | Acceso para clientes |
-| `/freelancer-profile/` | `freelancer` | Acceso para freelancers |
-| `/admin-panel/` | `admin` | Panel exclusivo de admins |
+| Ruta                 | Rol Requerido | Descripción                 |
+|----------------------|---------------|-----------------------------|
+| `/client-dashboard/` | `client`      | Acceso para clientes        |
+| `/freelancer-profile/`| `freelancer` | Acceso para freelancers     |
+| `/admin-panel/`      | `admin`       | Panel exclusivo de admins   |
 
 ---
 
 ## 💼 Gestión de Servicios (`service-service`)
 
-| Endpoint | Método | Acceso | Descripción |
-|----------|--------|--------|-------------|
-| `/services/` | POST | Freelancer/Admin | Crear servicio |
-| `/services/` | GET | Público | Listar servicios |
-| `/services/my/` | GET | Freelancer/Admin | Ver servicios del usuario |
-| `/services/{id}` | GET | Público | Detalle del servicio |
-| `/services/{id}` | PUT | Propietario/Admin | Editar servicio |
-| `/services/{id}` | DELETE | Propietario/Admin | Eliminar servicio |
-| `/landing-categories/` | GET | Público | Categorías con servicios |
-| `/categories/` | POST | Admin | Crear categoría |
-| `/categories/` | GET | Público | Listar categorías |
-| `/categories/{id}` | DELETE | Admin | Eliminar categoría |
+| Endpoint              | Método | Acceso            | Descripción                   |
+|-----------------------|--------|-------------------|-------------------------------|
+| `/services/`          | POST   | Freelancer/Admin  | Crear servicio                |
+| `/services/`          | GET    | Público           | Listar servicios              |
+| `/services/my/`       | GET    | Freelancer/Admin  | Ver servicios del usuario     |
+| `/services/{id}`      | GET    | Público           | Detalle del servicio          |
+| `/services/{id}`      | PUT    | Propietario/Admin | Editar servicio               |
+| `/services/{id}`      | DELETE | Propietario/Admin | Eliminar servicio             |
+| `/landing-categories/`| GET    | Público           | Categorías destacadas         |
+| `/categories/`        | POST   | Admin             | Crear categoría               |
+| `/categories/`        | GET    | Público           | Listar categorías             |
+| `/categories/{id}`    | DELETE | Admin             | Eliminar categoría            |
 
 ---
 
@@ -81,8 +85,9 @@ Frontend desarrollado con **HTML, JavaScript y Tailwind CSS**.
 frontend/
 ├── js/
 │   ├── script.js          # Login y redirección
-│   ├── services.js        # CRUD y filtros de servicios
-│   └── landing.js         # Lógica de landing
+│   ├── services.js        # CRUD y filtros
+│   ├── landing.js         # Lógica landing
+│   └── notification.js    # Notificaciones animadas
 ├── landing.html           # Página de bienvenida
 ├── index.html             # Login
 ├── register.html          # Registro
@@ -93,44 +98,46 @@ frontend/
 
 ## ✨ Características Destacadas
 
-- Manejo completo de tokens JWT
-- Estilo moderno y responsive
-- Navbar fijo y global
-- Alternancia entre "Mis Servicios" y "Todos los Servicios"
-- Landing con “Top Freelancers” por categoría
-- Dropdowns dinámicos para selección de categoría
-- Filtrado de servicios desde landing y gestión
+- Manejo completo de tokens JWT  
+- Estilo moderno y responsive  
+- Navbar global fijo  
+- Alternancia entre "Mis Servicios" y "Todos los Servicios"  
+- Landing con “Top Freelancers” por categoría  
+- Dropdowns dinámicos para selección de categorías  
+- Filtrado de servicios desde landing y gestión  
+- Notificaciones animadas persistentes entre páginas  
+- Navegación fluida entre login y registro  
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-| Tecnología | Propósito |
-|------------|-----------|
-| Python 3.9 | Backend |
-| FastAPI | API REST |
-| PostgreSQL | Base de datos |
-| `psycopg2-binary` | Conector PostgreSQL |
-| JWT | Autenticación |
-| `bcrypt`, `passlib` | Hasheo de contraseñas |
-| Docker | Contenerización |
-| Git | Control de versiones |
-| `aiosmtplib` | Envío de correos |
-| HTML + JS | Interfaz de usuario |
-| Tailwind CSS | Estilos CSS |
+| Tecnología         | Propósito             |
+|--------------------|------------------------|
+| Python 3.9         | Backend                |
+| FastAPI            | API REST               |
+| PostgreSQL         | Base de datos          |
+| psycopg2-binary    | Conector PostgreSQL    |
+| JWT                | Autenticación          |
+| bcrypt, passlib    | Hasheo de contraseñas  |
+| Docker             | Contenerización        |
+| Git                | Control de versiones   |
+| aiosmtplib         | Envío de correos       |
+| HTML + JS          | Interfaz de usuario    |
+| Tailwind CSS       | Estilos CSS            |
 
 ---
 
 ## 💻 Ejecución del Proyecto
 
-### Clonar Repositorio
+### 1. Clonar Repositorio
 
 ```bash
 git clone https://github.com/tuusuario/RedFreelance.git
 cd RedFreelance
 ```
 
-### Configurar Variables de Entorno
+### 2. Configurar Variables de Entorno
 
 #### `auth-service/.env`
 
@@ -154,7 +161,7 @@ ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
-### Levantar Servicios Backend
+### 3. Levantar Backend
 
 ```bash
 docker-compose up --build
@@ -163,7 +170,7 @@ docker-compose up --build
 - Auth-Service: http://localhost:8000  
 - Service-Service: http://localhost:8001
 
-### Levantar Frontend
+### 4. Levantar Frontend
 
 ```bash
 cd frontend
@@ -210,11 +217,11 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 ### Pruebas por Rol
 
-| Ruta | Rol | Método | Esperado |
-|------|-----|--------|----------|
-| `/client-dashboard/` | client | GET | 200 / 403 |
-| `/freelancer-profile/` | freelancer | GET | 200 / 403 |
-| `/admin-panel/` | admin | GET | 200 / 403 |
+| Ruta                | Rol       | Método | Resultado Esperado |
+|---------------------|-----------|--------|---------------------|
+| `/client-dashboard/`| `client`  | GET    | 200 / 403           |
+| `/freelancer-profile/`| `freelancer` | GET | 200 / 403           |
+| `/admin-panel/`     | `admin`   | GET    | 200 / 403           |
 
 ---
 
@@ -240,11 +247,11 @@ Content-Type: application/json
 ### Otros Endpoints
 
 - `GET /services/` – Listar todos  
-- `GET /services/my/` – Listar propios  
-- `GET /services/{id}` – Detalle por ID  
+- `GET /services/my/` – Servicios propios  
+- `GET /services/{id}` – Detalle del servicio  
 - `PUT /services/{id}` – Editar servicio  
 - `DELETE /services/{id}` – Eliminar servicio  
-- `GET /landing-categories/` – Categorías para landing  
+- `GET /landing-categories/` – Categorías destacadas  
 
 ---
 
@@ -252,8 +259,8 @@ Content-Type: application/json
 
 ### Fase 1: Backend
 
-- Modelo `DBCategory`
-- Validaciones de categoría
+- Crear modelo `DBCategory`
+- Validar categoría en creación/edición
 - Endpoints:
   - `POST /categories/`
   - `GET /categories/`
@@ -261,13 +268,10 @@ Content-Type: application/json
 
 ### Fase 2: Frontend
 
-- Reemplazar `input` por `<select>` dinámico
-- Obtener categorías
-- Filtrar desde `landing.html`
-
-### Fase 3: UI/UX
-
-- Notificaciones personalizadas (reemplazo de `alert()`)
+- Usar `<select>` dinámico en lugar de `<input>`
+- Obtener categorías dinámicamente
+- Filtrado desde `landing.html`
+- Implementar **modal de confirmación personalizado** para acciones críticas
 
 ---
 

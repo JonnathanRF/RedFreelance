@@ -4,75 +4,123 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RedFreelance - Gestión de Servicios</title>
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/services.css">
+    <!-- Incluir Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom keyframes for fade-in-up */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+    </style>
 </head>
-<body id="services-page"> <!-- ¡IMPORTANTE: ID AÑADIDO AQUÍ! -->
-    <div class="container">
-        <h1>RedFreelance - Gestión de Servicios</h1>
-        <p>Bienvenido/a <span id="userEmailDisplay"></span>! (Rol: <span id="userRoleDisplay"></span>)</p>
-        <button id="backToAuthButton">Volver a Autenticación</button>
-        <hr>
+<body id="services-page" class="bg-gray-900 text-gray-200 min-h-screen flex flex-col items-center"> <!-- Added Tailwind classes -->
+
+    <!-- Navbar -->
+    <nav class="w-full bg-gray-950 p-4 flex justify-between items-center shadow-lg fixed top-0 z-50">
+        <a href="landing.html" class="text-teal-400 text-2xl font-bold hover:text-teal-300 transition-colors duration-200">
+            RedFreelance
+        </a>
+        <!-- Puedes añadir más elementos de navegación aquí si es necesario -->
+    </nav>
+
+    <div class="container bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-2xl text-center border border-gray-700 animate-fade-in-up mt-16"> <!-- Added Tailwind classes and mt-16 -->
+        <h1 class="text-teal-400 text-3xl font-bold mb-4">RedFreelance - Gestión de Servicios</h1>
+        <p class="text-gray-300 mb-6">Bienvenido/a <span id="userEmailDisplay" class="font-bold text-teal-400"></span>! (Rol: <span id="userRoleDisplay" class="font-bold text-teal-400"></span>)</p>
+        <button id="backToAuthButton" class="w-full bg-gray-700 text-gray-200 py-3 rounded-lg font-bold hover:bg-gray-600 transition-all duration-200 ease-in-out shadow-md active:scale-95">Volver a Autenticación</button>
+        <hr class="border-t border-dashed border-gray-600 my-8">
 
         <!-- Sección para crear un nuevo servicio (solo visible para freelancers) -->
-        <div id="createServiceSection" style="display: none;">
-            <h2>Publicar Nuevo Servicio</h2>
-            <form id="createServiceForm">
-                <label for="serviceTitle">Título:</label>
-                <input type="text" id="serviceTitle" required>
+        <div id="createServiceSection" class="hidden"> <!-- Changed to Tailwind hidden class -->
+            <h2 class="text-xl font-semibold text-teal-300 mb-6">Publicar Nuevo Servicio</h2>
+            <form id="createServiceForm" class="flex flex-col space-y-4">
+                <label for="serviceTitle" class="text-left font-semibold text-gray-300">Título:</label>
+                <input type="text" id="serviceTitle" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
 
-                <label for="serviceDescription">Descripción:</label>
-                <textarea id="serviceDescription" rows="4" required></textarea>
+                <label for="serviceDescription" class="text-left font-semibold text-gray-300">Descripción:</label>
+                <textarea id="serviceDescription" rows="4" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 resize-y transition-all duration-200"></textarea>
 
-                <label for="servicePrice">Precio:</label>
-                <input type="number" id="servicePrice" step="0.01" required>
+                <label for="servicePrice" class="text-left font-semibold text-gray-300">Precio:</label>
+                <input type="number" id="servicePrice" step="0.01" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
 
-                <label for="serviceCategory">Categoría:</label>
-                <input type="text" id="serviceCategory" required>
+                <label for="serviceCategory" class="text-left font-semibold text-gray-300">Categoría:</label>
+                <input type="text" id="serviceCategory" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
 
-                <button type="submit">Crear Servicio</button>
+                <button type="submit" class="w-full bg-teal-500 text-gray-900 py-3 rounded-lg font-bold hover:bg-teal-600 transition-all duration-200 ease-in-out shadow-md active:scale-95 mt-6">Crear Servicio</button>
             </form>
-            <p id="createServiceMessage" class="success-message"></p>
-            <p id="createServiceErrorMessage" class="error-message"></p>
-            <hr>
+            <p id="createServiceMessage" class="success-message hidden"></p>
+            <p id="createServiceErrorMessage" class="error-message hidden"></p>
+            <hr class="border-t border-dashed border-gray-600 my-8">
         </div>
 
         <!-- Sección para listar servicios -->
         <div id="listServicesSection">
-            <h3 id="servicesListTitle">Servicios Disponibles</h3> <!-- Título de la lista de servicios -->
-            <div id="servicesList" class="services-grid">
+            <h3 id="servicesListTitle" class="text-xl font-semibold text-teal-300 mb-6">Servicios Disponibles</h3> <!-- Título de la lista de servicios -->
+            <div id="servicesList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mt-6 p-4 bg-gray-800 rounded-xl shadow-inner border border-gray-700"> <!-- Added Tailwind classes -->
                 <!-- Los servicios se cargarán aquí dinámicamente -->
-                <p id="noServicesMessage" style="display: none;">No hay servicios disponibles.</p>
+                <p id="noServicesMessage" class="text-gray-400 text-center col-span-full hidden">No hay servicios disponibles.</p>
             </div>
-            <p id="listServicesMessage" class="error-message"></p>
+            <p id="listServicesMessage" class="error-message hidden"></p>
         </div>
 
         <!-- Sección para editar/eliminar un servicio (se mostrará al seleccionar uno) -->
-        <div id="manageServiceSection" style="display: none;">
-            <h2>Gestionar Servicio <span id="manageServiceId"></span></h2>
-            <form id="updateServiceForm">
-                <label for="updateServiceTitle">Título:</label>
-                <input type="text" id="updateServiceTitle" required>
+        <div id="manageServiceSection" class="hidden"> <!-- Changed to Tailwind hidden class -->
+            <h2 class="text-xl font-semibold text-teal-300 mb-6">Gestionar Servicio <span id="manageServiceId" class="font-normal text-gray-300"></span></h2>
+            <form id="updateServiceForm" class="flex flex-col space-y-4">
+                <label for="updateServiceTitle" class="text-left font-semibold text-gray-300">Título:</label>
+                <input type="text" id="updateServiceTitle" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
 
-                <label for="updateServiceDescription">Descripción:</label>
-                <textarea id="updateServiceDescription" rows="4" required></textarea>
+                <label for="updateServiceDescription" class="text-left font-semibold text-gray-300">Descripción:</label>
+                <textarea id="updateServiceDescription" rows="4" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 resize-y transition-all duration-200"></textarea>
 
-                <label for="updateServicePrice">Precio:</label>
-                <input type="number" id="updateServicePrice" step="0.01" required>
+                <label for="updateServicePrice" class="text-left font-semibold text-gray-300">Precio:</label>
+                <input type="number" id="updateServicePrice" step="0.01" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
 
-                <label for="updateServiceCategory">Categoría:</label>
-                <input type="text" id="updateServiceCategory" required>
+                <label for="updateServiceCategory" class="text-left font-semibold text-gray-300">Categoría:</label>
+                <input type="text" id="updateServiceCategory" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
 
-                <button type="submit" id="updateServiceButton">Actualizar Servicio</button>
-                <button type="button" id="deleteServiceButton" class="delete-button">Eliminar Servicio</button>
-                <button type="button" id="cancelManageButton" class="cancel-button">Cancelar</button>
+                <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 mt-6">
+                    <button type="submit" id="updateServiceButton" class="flex-1 bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-blue-600 transition-all duration-200 ease-in-out shadow-md active:scale-95">Actualizar Servicio</button>
+                    <button type="button" id="deleteServiceButton" class="flex-1 bg-red-500 text-white py-3 rounded-lg font-bold hover:bg-red-600 transition-all duration-200 ease-in-out shadow-md active:scale-95">Eliminar Servicio</button>
+                    <button type="button" id="cancelManageButton" class="flex-1 bg-gray-500 text-white py-3 rounded-lg font-bold hover:bg-gray-600 transition-all duration-200 ease-in-out shadow-md active:scale-95">Cancelar</button>
+                </div>
             </form>
-            <p id="manageServiceMessage" class="success-message"></p>
-            <p id="manageServiceErrorMessage" class="error-message"></p>
+            <p id="manageServiceMessage" class="success-message hidden"></p>
+            <p id="manageServiceErrorMessage" class="error-message hidden"></p>
         </div>
 
     </div>
 
+    <!-- Estructura para Notificaciones Personalizadas -->
+    <div id="customNotification" class="fixed bottom-4 right-4 bg-gray-900 text-white p-4 rounded-lg shadow-xl hidden z-50 transform translate-y-full opacity-0 transition-all duration-500 ease-out">
+        <div class="flex items-center space-x-3">
+            <span id="notificationIcon" class="text-2xl"></span>
+            <p id="notificationMessage" class="text-lg font-semibold"></p>
+        </div>
+        <button id="closeNotification" class="absolute top-2 right-2 text-gray-400 hover:text-gray-200 focus:outline-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
+
+    <style>
+        /* Clases de animación para mostrar/ocultar */
+        .notification-show {
+            transform: translateY(0) !important;
+            opacity: 1 !important;
+        }
+        .notification-hide {
+            transform: translateY(100%) !important;
+            opacity: 0 !important;
+        }
+    </style>
+
+    <script src="js/notification.js"></script> <!-- ¡NUEVA LÍNEA! -->
     <script src="js/services.js"></script>
 </body>
 </html>

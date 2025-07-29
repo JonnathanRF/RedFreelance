@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RedFreelance - Registrarse</title>
+    <title>RedFreelance - Registro</title>
     <!-- Incluir Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -20,9 +20,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col items-center">
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Navbar -->
+    <!-- Navbar (opcional, si quieres que aparezca también en registro) -->
     <nav class="w-full bg-gray-950 p-4 flex justify-between items-center shadow-lg fixed top-0 z-50">
         <a href="landing.html" class="text-teal-400 text-2xl font-bold hover:text-teal-300 transition-colors duration-200">
             RedFreelance
@@ -30,33 +30,71 @@
         <!-- Puedes añadir más elementos de navegación aquí si es necesario -->
     </nav>
 
-    <div class="container bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md text-center border border-gray-700 animate-fade-in-up mt-16"> <!-- Añadido mt-16 para compensar el navbar fijo -->
+    <div class="container bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md text-center border border-gray-700 animate-fade-in-up mt-16"> <!-- Added mt-16 to account for fixed nav -->
         <h1 class="text-teal-400 text-3xl font-bold mb-4">RedFreelance</h1>
-        <h2 class="text-2xl font-semibold text-gray-100 mb-8">Registrarse</h2>
+        <p class="text-gray-300 text-lg mb-8">Autenticación de Usuarios</p>
 
+        <!-- Sección de Registro (VISIBLE POR DEFECTO EN register.html) -->
         <div id="registerSection">
-            <h3 class="text-xl font-semibold text-teal-300 mb-6">Crear Nueva Cuenta</h3>
+            <h2 class="text-xl font-semibold text-teal-300 mb-6">Registrarse</h2>
             <form id="registerForm" class="flex flex-col space-y-4">
                 <label for="registerEmail" class="text-left font-semibold text-gray-300">Email:</label>
                 <input type="email" id="registerEmail" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
+
                 <label for="registerPassword" class="text-left font-semibold text-gray-300">Contraseña:</label>
                 <input type="password" id="registerPassword" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
-                <label for="registerRole" class="text-left font-semibold text-gray-300">Selecciona un rol:</label>
-                <select id="registerRole" required class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
-                    <option value="">Selecciona un rol</option>
+
+                <label for="registerRole" class="text-left font-semibold text-gray-300">Rol:</label>
+                <select id="registerRole" class="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200">
                     <option value="client">Cliente</option>
                     <option value="freelancer">Freelancer</option>
-                    <option value="admin">Administrador</option>
+                    <option value="admin">Admin</option>
                 </select>
+
                 <button type="submit" class="w-full bg-teal-500 text-gray-900 py-3 rounded-lg font-bold hover:bg-teal-600 transition-all duration-200 ease-in-out shadow-md active:scale-95 mt-6">Registrar</button>
             </form>
-            <p id="registerMessage" class="success-message hidden"></p>
-            <p id="registerErrorMessage" class="error-message hidden"></p>
-            <hr class="border-t border-dashed border-gray-600 my-8">
-            <p class="text-gray-400 mb-4">¿Ya tienes una cuenta?</p>
-            <button id="goToLoginButton" class="w-full bg-gray-700 text-gray-200 py-3 rounded-lg font-bold hover:bg-gray-600 transition-all duration-200 ease-in-out shadow-md active:scale-95">Iniciar Sesión</button>
+            <p id="registerMessage" class="success-message text-green-400 mt-4 hidden"></p>
+            <p id="registerErrorMessage" class="error-message text-red-400 mt-4 hidden"></p>
+
+            <button id="goToLoginButton" class="w-full bg-gray-700 text-gray-200 py-3 rounded-lg font-bold hover:bg-gray-600 transition-all duration-200 ease-in-out shadow-md active:scale-95 mt-4">Ya tengo cuenta (Iniciar Sesión)</button>
         </div>
+
+        <!-- Sección de Login (oculta en register.html, solo para compatibilidad con script.js) -->
+        <div id="loginSection" class="hidden">
+            <!-- Contenido del formulario de login, si es necesario para el script.js -->
+        </div>
+
+        <!-- Sección de Bienvenida (oculta en register.html, solo para compatibilidad con script.js) -->
+        <div id="welcomeSection" class="hidden">
+            <!-- Contenido de bienvenida, si es necesario para el script.js -->
+        </div>
+
     </div>
+
+    <!-- Estructura para Notificaciones Personalizadas -->
+    <div id="customNotification" class="fixed bottom-4 right-4 bg-gray-900 text-white p-4 rounded-lg shadow-xl hidden z-50 transform translate-y-full opacity-0 transition-all duration-500 ease-out">
+        <div class="flex items-center space-x-3">
+            <span id="notificationIcon" class="text-2xl"></span>
+            <p id="notificationMessage" class="text-lg font-semibold"></p>
+        </div>
+        <button id="closeNotification" class="absolute top-2 right-2 text-gray-400 hover:text-gray-200 focus:outline-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
+
+    <style>
+        /* Clases de animación para mostrar/ocultar */
+        .notification-show {
+            transform: translateY(0) !important;
+            opacity: 1 !important;
+        }
+        .notification-hide {
+            transform: translateY(100%) !important;
+            opacity: 0 !important;
+        }
+    </style>
+
+    <script src="js/notification.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>
