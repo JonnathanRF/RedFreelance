@@ -13,12 +13,12 @@ let notificationTimeout; // Variable para almacenar el timeout de auto-ocultado
  * @param {'success' | 'error' | 'warning' | 'info'} type - El tipo de notificación para el icono y el estilo.
  * @param {number} [duration=3000] - Cuánto tiempo debe ser visible la notificación en milisegundos (predeterminado: 3000ms).
  */
-function showNotification(message, type = 'info', duration = 3000) {
+export function showNotification(message, type = 'info', duration = 3000) { // <-- ¡Añadido 'export'!
     // Asegurarse de que el elemento de notificación existe
     if (!customNotification) {
         console.error('Elemento de notificación (#customNotification) no encontrado en el DOM.');
         // Fallback a alert nativo si el elemento no está presente (aunque no debería pasar si el HTML está bien)
-        alert(message);
+        alert(message); // Usar alert() solo como último recurso para depuración, no en producción
         return;
     }
 

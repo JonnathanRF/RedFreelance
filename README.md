@@ -1,136 +1,97 @@
-# 🔐 RedFreelance - Microservicio de Autenticación
+# 🌐 RedFreelance - Microservicio de Servicios + Frontend
 
-Bienvenido al microservicio de autenticación (`auth-service`) de la plataforma **RedFreelance**.
-
-Este servicio gestiona el **registro, inicio de sesión y autorización de usuarios mediante JWT**. Es el **núcleo de seguridad** del ecosistema de microservicios.
+Este repositorio forma parte de la plataforma **RedFreelance** y combina el **microservicio de servicios (`service-service`)** y el **frontend**.
 
 ---
 
 ## 🚧 Estado del Proyecto
 
-- ✅ Funcionalidades principales completadas  
-- ✅ Autorización integrada en `service-service`  
-- ✅ Frontend estilizado con Tailwind CSS  
-- ✅ Filtro de servicios por freelancer  
-- ✅ CORS correctamente configurado  
-- ✅ Página de bienvenida (`landing.html`)  
-- ✅ Interfaz dinámica con animaciones  
-- ✅ Navbar global con enlace a landing  
-- ✅ Redirección inteligente (`index.html`, `script.js`)  
-- ✅ Dropdowns dinámicos para categorías  
-- ✅ Filtrado por categoría desde `landing.html`  
-- ✅ Redirección al login si no autenticado  
-- ✅ Corregido `AttributeError` de `bcrypt` en logs  
-- ✅ Navegación fluida entre login y registro  
-- ✅ Notificaciones personalizadas y animadas  
-- ✅ Persistencia de notificaciones tras redirecciones  
-- ✅ Eliminación del warning de `bcrypt` en logs  
+- ✅ Gestión completa de servicios (crear, listar, editar, eliminar)  
+- ✅ Filtro de servicios por freelancer y por categoría  
+- ✅ Autenticación y autorización basada en roles integrada con `auth-service`  
+- ✅ Dropdowns dinámicos de categorías  
+- ✅ Página de bienvenida (`landing.html`) funcional  
+- ✅ Redirección y autenticación inteligente en frontend  
+- ✅ Interfaz moderna y responsive con **Tailwind CSS**  
+- ✅ Navbar global  
+- ✅ Notificaciones animadas persistentes  
+- ✅ Modal de confirmación personalizado  
+- ✅ Corrección de errores con módulos ES6 (`import/export`)  
 
 ---
 
-## ⚙️ Infraestructura
+## 💼 Microservicio de Servicios (`service-service`)
 
-- `Dockerfile`: Imagen para FastAPI  
-- `docker-compose.yml`: Orquestación con PostgreSQL (sin `version:` obsoleto)  
-- 🔁 **Hot Reload** para desarrollo ágil  
-
----
-
-## 👤 Gestión de Usuarios (`auth-service`)
-
-| Endpoint   | Método | Descripción                          |
-|------------|--------|--------------------------------------|
-| `/register`| POST   | Registro con contraseña y rol        |
-| `/token`   | POST   | Login y generación de JWT            |
-| `/me/`     | GET    | Obtener datos del usuario autenticado|
-
----
-
-## 🔐 Autorización Basada en Roles
-
-Middleware: `get_current_active_user_by_role`
-
-| Ruta                 | Rol Requerido | Descripción                 |
-|----------------------|---------------|-----------------------------|
-| `/client-dashboard/` | `client`      | Acceso para clientes        |
-| `/freelancer-profile/`| `freelancer` | Acceso para freelancers     |
-| `/admin-panel/`      | `admin`       | Panel exclusivo de admins   |
-
----
-
-## 💼 Gestión de Servicios (`service-service`)
-
-| Endpoint              | Método | Acceso            | Descripción                   |
-|-----------------------|--------|-------------------|-------------------------------|
-| `/services/`          | POST   | Freelancer/Admin  | Crear servicio                |
-| `/services/`          | GET    | Público           | Listar servicios              |
-| `/services/my/`       | GET    | Freelancer/Admin  | Ver servicios del usuario     |
-| `/services/{id}`      | GET    | Público           | Detalle del servicio          |
-| `/services/{id}`      | PUT    | Propietario/Admin | Editar servicio               |
-| `/services/{id}`      | DELETE | Propietario/Admin | Eliminar servicio             |
-| `/landing-categories/`| GET    | Público           | Categorías destacadas         |
-| `/categories/`        | POST   | Admin             | Crear categoría               |
-| `/categories/`        | GET    | Público           | Listar categorías             |
-| `/categories/{id}`    | DELETE | Admin             | Eliminar categoría            |
+| Endpoint               | Método | Acceso            | Descripción                   |
+|------------------------|--------|-------------------|-------------------------------|
+| `/services/`           | POST   | Freelancer/Admin  | Crear nuevo servicio          |
+| `/services/`           | GET    | Público           | Listar todos los servicios    |
+| `/services/my/`        | GET    | Freelancer/Admin  | Ver servicios propios         |
+| `/services/{id}`       | GET    | Público           | Detalle de un servicio        |
+| `/services/{id}`       | PUT    | Propietario/Admin | Editar servicio               |
+| `/services/{id}`       | DELETE | Propietario/Admin | Eliminar servicio             |
+| `/landing-categories/` | GET    | Público           | Categorías destacadas         |
+| `/categories/`         | POST   | Admin             | Crear categoría               |
+| `/categories/`         | GET    | Público           | Listar categorías             |
+| `/categories/{id}`     | DELETE | Admin             | Eliminar categoría            |
 
 ---
 
 ## 🚀 Frontend
 
-Frontend desarrollado con **HTML, JavaScript y Tailwind CSS**.
+Frontend desarrollado con **HTML**, **JavaScript (ES6)** y **Tailwind CSS**.
 
-### 🧱 Estructura
+### 🧱 Estructura del Proyecto
 
 ```
 frontend/
 ├── js/
-│   ├── script.js          # Login y redirección
-│   ├── services.js        # CRUD y filtros
-│   ├── landing.js         # Lógica landing
-│   └── notification.js    # Notificaciones animadas
-├── landing.html           # Página de bienvenida
+│   ├── script.js          # Lógica de login y redirección
+│   ├── services.js        # CRUD y filtrado de servicios
+│   ├── landing.js         # Lógica de página de bienvenida
+│   ├── notification.js    # Sistema de notificaciones visuales
+│   └── confirmModal.js    # Modal de confirmación para acciones críticas
 ├── index.html             # Login
 ├── register.html          # Registro
-└── services.html          # Gestión de servicios
+├── landing.html           # Página de bienvenida
+└── services.html          # Panel de gestión de servicios
 ```
 
 ---
 
-## ✨ Características Destacadas
+## ✨ Mejoras y Funcionalidades Destacadas
 
-- Manejo completo de tokens JWT  
-- Estilo moderno y responsive  
-- Navbar global fijo  
-- Alternancia entre "Mis Servicios" y "Todos los Servicios"  
-- Landing con “Top Freelancers” por categoría  
-- Dropdowns dinámicos para selección de categorías  
-- Filtrado de servicios desde landing y gestión  
-- Notificaciones animadas persistentes entre páginas  
-- Navegación fluida entre login y registro  
+- Autenticación JWT y protección de rutas  
+- Navbar fijo con navegación global  
+- Dropdown interactivo para selección de categorías  
+- Filtro en tiempo real al escribir en el selector  
+- Categorías ordenadas alfabéticamente  
+- Visualización de categorías seleccionadas como **tags eliminables**  
+- Mensajes de notificación personalizados (éxito/error)  
+- Modal para confirmar eliminación de servicios  
+- Mostrar botones de "Gestionar" solo para propietarios y admins  
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-| Tecnología         | Propósito             |
-|--------------------|------------------------|
-| Python 3.9         | Backend                |
-| FastAPI            | API REST               |
-| PostgreSQL         | Base de datos          |
-| psycopg2-binary    | Conector PostgreSQL    |
-| JWT                | Autenticación          |
-| bcrypt, passlib    | Hasheo de contraseñas  |
-| Docker             | Contenerización        |
-| Git                | Control de versiones   |
-| aiosmtplib         | Envío de correos       |
-| HTML + JS          | Interfaz de usuario    |
-| Tailwind CSS       | Estilos CSS            |
+| Tecnología       | Propósito                  |
+|------------------|-----------------------------|
+| Python 3.9       | Backend                     |
+| FastAPI          | API REST                    |
+| PostgreSQL       | Base de datos relacional    |
+| bcrypt, passlib  | Hasheo de contraseñas       |
+| JWT              | Autenticación               |
+| Docker           | Contenerización             |
+| HTML, JS (ES6)   | Interfaz de usuario         |
+| Tailwind CSS     | Estilos modernos y rápidos  |
+| Git              | Control de versiones        |
 
 ---
 
 ## 💻 Ejecución del Proyecto
 
-### 1. Clonar Repositorio
+### 1. Clonar el Repositorio
 
 ```bash
 git clone https://github.com/tuusuario/RedFreelance.git
@@ -177,55 +138,11 @@ cd frontend
 python -m http.server 3000
 ```
 
-- Frontend: http://localhost:3000
+- Frontend disponible en: http://localhost:3000
 
 ---
 
 ## 🧪 Pruebas con Postman
-
-### Registro
-
-```http
-POST http://localhost:8000/register
-Content-Type: application/json
-```
-
-```json
-{
-  "email": "ejemplo@correo.com",
-  "password": "contraseña_segura",
-  "role": "client"
-}
-```
-
-### Login
-
-```http
-POST http://localhost:8000/token
-Content-Type: application/x-www-form-urlencoded
-
-username=ejemplo@correo.com
-password=contraseña_segura
-```
-
-### Obtener Usuario Actual
-
-```http
-GET http://localhost:8000/me/
-Authorization: Bearer <ACCESS_TOKEN>
-```
-
-### Pruebas por Rol
-
-| Ruta                | Rol       | Método | Resultado Esperado |
-|---------------------|-----------|--------|---------------------|
-| `/client-dashboard/`| `client`  | GET    | 200 / 403           |
-| `/freelancer-profile/`| `freelancer` | GET | 200 / 403           |
-| `/admin-panel/`     | `admin`   | GET    | 200 / 403           |
-
----
-
-## 🔧 Pruebas de Servicios
 
 ### Crear Servicio
 
@@ -244,45 +161,42 @@ Content-Type: application/json
 }
 ```
 
-### Otros Endpoints
+### Endpoints adicionales
 
-- `GET /services/` – Listar todos  
-- `GET /services/my/` – Servicios propios  
-- `GET /services/{id}` – Detalle del servicio  
-- `PUT /services/{id}` – Editar servicio  
-- `DELETE /services/{id}` – Eliminar servicio  
+- `GET /services/` – Listar servicios  
+- `GET /services/my/` – Ver servicios propios  
+- `GET /services/{id}` – Ver detalle  
+- `PUT /services/{id}` – Editar  
+- `DELETE /services/{id}` – Eliminar  
 - `GET /landing-categories/` – Categorías destacadas  
 
 ---
 
 ## 📌 Próximos Pasos
 
-### Fase 1: Backend
+### Backend
 
-- Crear modelo `DBCategory`
-- Validar categoría en creación/edición
-- Endpoints:
-  - `POST /categories/`
-  - `GET /categories/`
-  - `DELETE /categories/{id}`
+- Validación estricta de categoría al crear/editar servicio  
+- Mejoras en control de acceso por roles  
+- Modularización de servicios
 
-### Fase 2: Frontend
+### Frontend
 
-- Usar `<select>` dinámico en lugar de `<input>`
-- Obtener categorías dinámicamente
-- Filtrado desde `landing.html`
-- Implementar **modal de confirmación personalizado** para acciones críticas
+- Completar interfaz para editar y eliminar servicios  
+- Mejorar experiencia de usuario con feedback visual  
+- Validaciones de formularios más intuitivas  
+- Confirmación visual de acciones exitosas
 
 ---
 
 ## 🤝 Contribuciones
 
-¡Pull requests y sugerencias son bienvenidas!  
-Este proyecto está en constante evolución y abierto a la comunidad.
+Pull requests, sugerencias y aportes son bienvenidos.  
+Este proyecto está en constante desarrollo y agradecemos el apoyo de la comunidad.
 
 ---
 
 ## 📄 Licencia
 
 Distribuido bajo la **Licencia MIT**.  
-Consulta el archivo `LICENSE` para más información.
+Consulta el archivo `LICENSE` para más detalles.
